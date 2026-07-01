@@ -1,0 +1,137 @@
+<?php
+
+namespace App\Http\Controllers;
+
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
+use App\Http\Requests\BookRequest;
+use App\Models\Book;
+use App\Models\Genre;
+use App\Models\Review;
+
+class BookController extends Controller
+{
+    public function index()
+    {
+        $user = Auth::user();
+
+        $books = Book::with('genres','reviews')
+              -> paginate(10);
+
+        return view('books.index',compact('books'));
+    }
+
+    public function create()
+    {
+        $genres = Genre::all();
+
+        return view('books.create', compact('genres'));
+    }
+
+    public function bookCreateStore(BookRequest $request)
+    {
+        $user = Auth::user();
+
+        DB::transaction(function () use ($user, $request) {
+
+            $book = Book::create([
+                'user_id' => $user->id,
+                'title' => $request->input('title'),
+                'author' => $request->input('author'),
+                'isbn' => $request->input('isbn'),
+                'published_date' => $request->input('published_date'),
+                'description' => $request->input('description'),
+                'image_url' => $request->input('image_url'),
+            ]);
+
+            $book->genres()->attach($request->input('genres'));
+        });
+
+        return redirect()->route('books.index');
+    }
+
+    public function show($bookId)
+    {
+        $book = Book::with('genres','reviews.likedByUsers') 
+              -> findOrFail($bookId);
+
+        return view('books.show', compact('book'));
+    }
+
+    public function favoriteBook(Request $request, $bookId)
+    {
+        $request->user()->favoriteBooks()->toggle($bookId);
+
+        return redirect()->back();
+    }
+
+    public function bookEdit($bookId)
+    {
+        $book = Book::with('genres')
+             -> findOrFail($bookId);
+
+        $genres = genre::all();
+
+        $this->authorize('update', $book);
+
+        return view('books.edit', compact('book','genres'));
+    }
+
+    public function bookUpdate(BookRequest $request,$bookId)
+    {
+        $user = Auth::user();
+
+        $book = Book::with('genres')
+             -> findOrFail($bookId);
+
+        DB::transaction(function () use ($user,$book, $request) {
+
+            $book->update([
+                'user_id' => $user->id,
+                'title' => $request->input('title'),
+                'author' => $request->input('author'),
+                'isbn' => $request->input('isbn'),
+                'published_date' => $request->input('published_date'),
+                'description' => $request->input('description'),
+                'image_url' => $request->input('image_url'),
+            ]);
+
+            $book->genres()->sync($request->input('genres'));
+        });
+
+        return redirect()->route('books.show', $book->id);
+    }
+
+    public function bookDelete($bookId)
+    {
+        $book = Book::findOrFail($bookId);
+
+        $this->authorize('delete', $book);
+
+        $book->delete();
+
+        return redirect()->route('books.index');
+    }
+
+    public function ranking()
+    {
+        $rankedBooks = Book::with('reviews')
+                    -> withAvg('reviews', 'rating')
+                    -> withCount('reviews')
+                    -> orderByDesc('reviews_avg_rating')
+                    -> get();
+
+        return view('ranking.index', compact('rankedBooks'));
+    }
+
+    public function favorite()
+    {
+        $user = Auth::user();
+
+        $books = $user->favoriteBooks()
+              -> paginate(10);
+
+        return view('favorites.index', compact('books'));
+    }
+}
