@@ -12,14 +12,25 @@ use App\Models\Review;
 
 class BookController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
         $user = Auth::user();
 
-        $books = Book::with('genres','reviews')
+        $genres = Genre::all();
+
+        $keyword = $request->input('keyword');
+        $genre = $request->input('genre');
+        $sort = $request->input('sort', 'newest');
+
+        $books = Book::query()
+              -> select('books.*')
+              -> withAvg('reviews as rating', 'rating')
+              -> genreFilter($genre)
+              -> keywordSearch($keyword)
+              -> sortOrder($sort)
               -> paginate(10);
 
-        return view('books.index',compact('books'));
+        return view('books.index',compact('books', 'genres', 'keyword', 'genre', 'sort'));
     }
 
     public function create()

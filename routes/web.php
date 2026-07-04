@@ -4,6 +4,9 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\BookController;
 use App\Http\Controllers\GenreController;
 use App\Http\Controllers\ReviewController;
+use App\Http\Controllers\ReportController;
+use App\Http\Controllers\ReadingPlanController;
+use App\Http\Controllers\NotificationController;
 
 /*
 |--------------------------------------------------------------------------
@@ -60,6 +63,12 @@ Route::middleware('auth')->group(function () {
     Route::delete('/genres/{genres}', [GenreController::class, 'delete'])->name('genres.destroy');
 
     Route::post('/genres', [GenreController::class, 'store'])->name('genres.store');
+
+    Route::get('/report', [ReportController::class, 'index'])->name('reports.index');
+
+    Route::get('/reading-plans', [ReadingPlanController::class, 'index'])->name('reading-plans.index');
+
+    Route::get('/notifications', [NotificationController::class, 'index'])->name('notifications.index');
 });
 
 Route::get('/books/{book}', [BookController::class, 'show'])->name('books.show');
