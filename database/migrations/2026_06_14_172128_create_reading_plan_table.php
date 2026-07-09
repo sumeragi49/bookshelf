@@ -16,8 +16,8 @@ return new class extends Migration
             $table->foreignId('user_id')->constrained()->cascadeOnDelete();
             $table->foreignId('book_id')->constrained()->cascadeOnDelete();
             $table->datetime('target_date');
-            $table->datetime('completed_at');
-            $table->tinyInteger('status');
+            $table->datetime('completed_at')->nullable();
+            $table->tinyInteger('status')->comment('0:未読,1:読書中,2:読了');
             $table->timestamps();
         });
     }

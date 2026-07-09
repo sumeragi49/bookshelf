@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Http;
 use App\Http\Requests\BookRequest;
 use App\Models\Book;
 use App\Models\Genre;
@@ -38,6 +39,65 @@ class BookController extends Controller
         $genres = Genre::all();
 
         return view('books.create', compact('genres'));
+    }
+
+    public function isbnSearch(Request $request, $isbn)
+    {
+        $simpleIsbn = str_replace(['-', ' '], '', $isbn);
+
+        if (empty($simpleIsbn)) {
+            return response()->json(['error' => '無効なISBNコードです。'], 400);
+        }
+
+        $url = 'https://www.googleapis.com/books/v1/volumes?q=isbn:' . $simpleIsbn;
+
+        $apiKey = env('GOOGLE_BOOKS_API_KEY');
+        if (!empty($apiKey)) {
+            $url .= '&key=' . $apiKey;
+        }
+
+        try {
+            $response = Http::withoutVerifying()->get($url);
+        } catch (\Exception $e) {
+            return response()->json(['error' => 'APIサーバーへの接続に失敗しました。'], 500);
+        }
+
+        if ($response->failed()) {
+            $statusCode = $response->status();
+
+            if ($statusCode === 429) {
+                return response()->json(['error' => 'リクエストが多すぎます。しばらく時間を置いてから再度お試しください。'], 429);
+            }
+
+            return response()->json(['error' => 'APIの呼び出しに失敗しました。ステータスコード:' . $statusCode], $statusCode);
+        }
+
+        $bookData = $response->json();
+
+            if (isset($bookData['items'][0]['volumeInfo'])) {
+                $volumeInfo = $bookData['items'][0]['volumeInfo'];
+
+                $book = [
+                    'title' => $volumeInfo['title'] ?? 'タイトル不明',
+                    'author' => isset($volumeInfo['authors']) ? implode(', ', $volumeInfo['authors']) : '著者不明',
+                    'published_date' => $volumeInfo['publishedDate'] ?? '出版日不明',
+                    'isbn' => $isbn,
+                    //古い作品だとないことがある。
+                    'description' => $volumeInfo['description'] ?? '説明なし',
+                    'image_url' => isset($volumeInfo['imageLinks']['thumbnail']) ? str_replace('http://', 'https://', $volumeInfo['imageLinks']['thumbnail']): null,
+                ];
+                //日本の書籍は小説や漫画が空欄になることがあり、出ないことがある
+                $genres =isset($volumeInfo['categories']) ? implode(', ', $volumeInfo['categories']) : 'ジャンル不明';
+
+                $book['genres'] = $genres;
+
+                return response()->json($book);
+            }
+            return response()->json(['error' => '書籍が見つかりませんでした。'], 404);
+        
+        //$statusCode = $response->status();
+
+        //return response()->json(['error' => "APIの呼び出しに失敗しました。(ステータスコード: {$statusCode})"], 500);
     }
 
     public function bookCreateStore(BookRequest $request)
@@ -84,7 +144,7 @@ class BookController extends Controller
 
         $genres = genre::all();
 
-        $this->authorize('update', $book);
+        $this->authorize('edit', $book);
 
         return view('books.edit', compact('book','genres'));
     }
@@ -110,6 +170,8 @@ class BookController extends Controller
 
             $book->genres()->sync($request->input('genres'));
         });
+
+        $this->authorize('update', $book);
 
         return redirect()->route('books.show', $book->id);
     }

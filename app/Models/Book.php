@@ -57,6 +57,11 @@ class Book extends Model
         return $this->belongsToMany(User::class, 'likes', 'user_id', 'review_id');
     }
 
+    public function readingPlans()
+    {
+        return $this->hasMany(ReadingPlan::class);
+    }
+
     public function scopeKeywordSearch($query, $keyword)
     {
         if (empty($keyword)) {

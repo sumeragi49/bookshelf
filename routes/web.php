@@ -26,6 +26,8 @@ Route::middleware('auth')->group(function () {
 
     Route::get('/books/create',[BookController::class, 'create'])->name('books.create');
 
+    Route::get('/books/isbn/{isbn}', [BookController::class, 'isbnSearch']);
+
     Route::post('/books', [BookController::class, 'bookCreateStore'])->name('books.store');
 
     Route::get('/books/{book}/edit', [BookController::class, 'bookEdit'])->name('books.edit');
@@ -67,6 +69,18 @@ Route::middleware('auth')->group(function () {
     Route::get('/report', [ReportController::class, 'index'])->name('reports.index');
 
     Route::get('/reading-plans', [ReadingPlanController::class, 'index'])->name('reading-plans.index');
+
+    Route::get('/reading-plan/create', [ReadingPlanController::class, 'create'])->name('reading-plans.create');
+
+    Route::post('/reading-plans', [ReadingPlanController::class, 'store'])->name('reading-plans.store');
+
+    Route::post('/reading-plans/{plan}/complete', [ReadingPlanController::class, 'complete'])->name('reading-plans.complete');
+
+    Route::get('/reading-plans/{plan}/edit', [ReadingPlanController::class, 'edit'])->name('reading-plans.edit');
+
+    Route::put('/reading-plans/{plan}', [ReadingPlanController::class, 'update'])->name('reading-plans.update');
+
+    Route::delete('/reading-plans/{plan}', [ReadingPlanController::class, 'delete'])->name('reading-plans.destroy');
 
     Route::get('/notifications', [NotificationController::class, 'index'])->name('notifications.index');
 });
