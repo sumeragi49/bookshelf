@@ -83,6 +83,8 @@ Route::middleware('auth')->group(function () {
     Route::delete('/reading-plans/{plan}', [ReadingPlanController::class, 'delete'])->name('reading-plans.destroy');
 
     Route::get('/notifications', [NotificationController::class, 'index'])->name('notifications.index');
+
+    Route::post('/notifications/{id}/read', [NotificationController::class, 'store'])->name('notifications.read');
 });
 
 Route::get('/books/{book}', [BookController::class, 'show'])->name('books.show');

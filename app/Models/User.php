@@ -67,4 +67,9 @@ class User extends Authenticatable
     {
         return $this->hasMany(ReadingPlan::class);
     }
+
+    //public function InfoNotifications()
+    //{
+        //return $this->hasMany(InfoNotification::class);
+    //}
 }
