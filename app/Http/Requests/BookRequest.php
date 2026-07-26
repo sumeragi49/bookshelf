@@ -22,7 +22,8 @@ class BookRequest extends FormRequest
      */
     public function rules(): array
     {
-        $bookId = $this->route('book');
+        //{book},{id}のどちらでもURL末尾の数値を抽出
+        $bookId = $this->route('book') ?? $this->route('id');
 
         $isbnRules = ['required', 'max:13'];
 
@@ -37,7 +38,7 @@ class BookRequest extends FormRequest
             'author' => ['required','max:255'],
             'isbn' => $isbnRules,
             'published_date' => ['required'],
-            'genres' => ['required'],
+            'genres' => ['required', 'array'],
             'image_url' => ['nullable', 'url'],
         ];
     }

@@ -21,7 +21,7 @@ class Book extends Model
     ];
 
     protected $casts = [
-        'published_date' => 'date',
+        'published_date' => 'datetime:Y-m-d\TH:i:s.uP',
     ];
 
     public function user()
@@ -90,12 +90,9 @@ class Book extends Model
         return match ((string)$sortKey) {
             'oldest' => $query->orderBy('created_at','asc'),
             'title' => $query->orderBy('title', 'asc'),
-            'rating' => $query->orderByRaw('
-            (SELECT AVG(rating) FROM reviews WHERE reviews.book_id = books.id) IS NULL ASC,
-            (SELECT AVG(rating) FROM reviews WHERE reviews.book_id = books.id) DESC
-            '),
+            'rating' => $query->orderByRaw('rating IS NULL ASC')->orderBy('rating', 'desc'),
             'newest' => $query->orderBy('created_at', 'desc'),
-            'default' => $query->orderBy('created_at', 'desc'),
+            default => $query->orderBy('created_at', 'desc'),
         };
     }
 }

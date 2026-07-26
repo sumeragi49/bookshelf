@@ -8,7 +8,7 @@ use App\Http\Requests\ReviewRequest;
 
 class ReviewController extends Controller
 {
-    public function reviewStore(ReviewRequest $request, $bookId)
+    public function store(ReviewRequest $request, $bookId)
     {
         $user = auth()->user();
 
@@ -22,17 +22,17 @@ class ReviewController extends Controller
         return redirect()->back();
     }
 
-    public function reviewEdit($reviewId)
+    public function edit($reviewId)
     {
         $review = Review::with('book')
                -> findOrFail($reviewId);
 
-        $this->authorize('update', $review);
+        $this->authorize('edit', $review);
 
         return view('reviews.edit', compact('review'));
     }
 
-    public function reviewUpdate(ReviewRequest $request,$reviewId)
+    public function update(ReviewRequest $request,$reviewId)
     {
         $review = Review::findOrFail($reviewId);
 
@@ -43,10 +43,12 @@ class ReviewController extends Controller
             'comment' => $request->input('comment'),
         ]);
 
+        $this->authorize('update', $review);
+
         return redirect()->route('books.show',['book' => $bookId]);
     }
 
-    public function ReviewDelete($reviewId)
+    public function delete($reviewId)
     {
         $review = Review::findOrFail($reviewId);
 
@@ -57,7 +59,7 @@ class ReviewController extends Controller
         return redirect()->route('books.index');
     }
 
-    public function reviewLike(Request $request, $reviewId)
+    public function like(Request $request, $reviewId)
     {
         $request->user()->likedReviews()->toggle($reviewId);
 

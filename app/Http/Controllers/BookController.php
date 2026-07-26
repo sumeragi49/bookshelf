@@ -74,33 +74,33 @@ class BookController extends Controller
 
         $bookData = $response->json();
 
-            if (isset($bookData['items'][0]['volumeInfo'])) {
-                $volumeInfo = $bookData['items'][0]['volumeInfo'];
+        if (isset($bookData['items'][0]['volumeInfo'])) {
+            $volumeInfo = $bookData['items'][0]['volumeInfo'];
 
-                $book = [
-                    'title' => $volumeInfo['title'] ?? 'タイトル不明',
-                    'author' => isset($volumeInfo['authors']) ? implode(', ', $volumeInfo['authors']) : '著者不明',
-                    'published_date' => $volumeInfo['publishedDate'] ?? '出版日不明',
-                    'isbn' => $isbn,
-                    //古い作品だとないことがある。
-                    'description' => $volumeInfo['description'] ?? '説明なし',
-                    'image_url' => isset($volumeInfo['imageLinks']['thumbnail']) ? str_replace('http://', 'https://', $volumeInfo['imageLinks']['thumbnail']): null,
+            $book = [
+                'title' => $volumeInfo['title'] ?? 'タイトル不明',
+                'author' => isset($volumeInfo['authors']) ? implode(', ', $volumeInfo['authors']) : '著者不明',
+                'published_date' => $volumeInfo['publishedDate'] ?? '出版日不明',
+                'isbn' => $isbn,
+                //古い作品だとないことがある。
+                'description' => $volumeInfo['description'] ?? '説明なし',
+                'image_url' => isset($volumeInfo['imageLinks']['thumbnail']) ? str_replace('http://', 'https://', $volumeInfo['imageLinks']['thumbnail']): null,
                 ];
-                //日本の書籍は小説や漫画が空欄になることがあり、出ないことがある
-                $genres =isset($volumeInfo['categories']) ? implode(', ', $volumeInfo['categories']) : 'ジャンル不明';
+            //日本の書籍は小説や漫画が空欄になることがあり、出ないことがある
+            $genres =isset($volumeInfo['categories']) ? implode(', ', $volumeInfo['categories']) : 'ジャンル不明';
 
-                $book['genres'] = $genres;
+            $book['genres'] = $genres;
 
-                return response()->json($book);
-            }
-            return response()->json(['error' => '書籍が見つかりませんでした。'], 404);
+            return response()->json($book);
+        }
+        return response()->json(['error' => '書籍が見つかりませんでした。'], 404);
         
         //$statusCode = $response->status();
 
         //return response()->json(['error' => "APIの呼び出しに失敗しました。(ステータスコード: {$statusCode})"], 500);
     }
 
-    public function bookCreateStore(BookRequest $request)
+    public function store(BookRequest $request)
     {
         $user = Auth::user();
 
@@ -134,10 +134,10 @@ class BookController extends Controller
     {
         $request->user()->favoriteBooks()->toggle($bookId);
 
-        return redirect()->back();
+        return redirect()->route('books.show', $bookId);
     }
 
-    public function bookEdit($bookId)
+    public function edit($bookId)
     {
         $book = Book::with('genres')
              -> findOrFail($bookId);
@@ -149,7 +149,7 @@ class BookController extends Controller
         return view('books.edit', compact('book','genres'));
     }
 
-    public function bookUpdate(BookRequest $request,$bookId)
+    public function update(BookRequest $request,$bookId)
     {
         $user = Auth::user();
 
@@ -176,7 +176,7 @@ class BookController extends Controller
         return redirect()->route('books.show', $book->id);
     }
 
-    public function bookDelete($bookId)
+    public function delete($bookId)
     {
         $book = Book::findOrFail($bookId);
 

@@ -21,7 +21,8 @@ class BookResource extends JsonResource
             'title' => $this->title,
             'author' => $this->author,
             'isbn' => $this->isbn,
-            'published_date' => $this->published_date,
+            'published_date' => $this->published_date
+                ? \Carbon\Carbon::parse($this->published_date)->timezone('Asia/Tokyo')->format('Y-m-d H:i:s'):null,
             'description' => $this->description,
             'image_url' => $this->image_url,
             'genres' => $this->genres->pluck('id')->toArray(),

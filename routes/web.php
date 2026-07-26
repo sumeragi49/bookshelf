@@ -28,25 +28,25 @@ Route::middleware('auth')->group(function () {
 
     Route::get('/books/isbn/{isbn}', [BookController::class, 'isbnSearch']);
 
-    Route::post('/books', [BookController::class, 'bookCreateStore'])->name('books.store');
+    Route::post('/books', [BookController::class, 'store'])->name('books.store');
 
-    Route::get('/books/{book}/edit', [BookController::class, 'bookEdit'])->name('books.edit');
+    Route::get('/books/{book}/edit', [BookController::class, 'edit'])->name('books.edit');
 
-    Route::put('/books/{book}', [BookController::class, 'bookUpdate'])->name('books.update');
+    Route::put('/books/{book}', [BookController::class, 'update'])->name('books.update');
 
-    Route::delete('/books/{book}', [BookController::class, 'bookDelete'])->name('books.destroy');
+    Route::delete('/books/{book}', [BookController::class, 'delete'])->name('books.destroy');
 
     Route::post('/books/{book}/favorites', [BookController::class, 'favoriteBook'])->name('favorites.toggle');
 
-    Route::post('/books/{book}/reviews', [ReviewController::class, 'reviewStore'])->name('reviews.store');
+    Route::post('/books/{book}/reviews', [ReviewController::class, 'store'])->name('reviews.store');
 
-    Route::post('/reviews/{review}/like', [ReviewController::class, 'ReviewLike'])->name('reviews.like');
+    Route::post('/reviews/{review}/like', [ReviewController::class, 'like'])->name('reviews.like');
 
-    Route::get('/reviews/{review}/edit', [ReviewController::class, 'reviewEdit'])->name('reviews.edit');
+    Route::get('/reviews/{review}/edit', [ReviewController::class, 'edit'])->name('reviews.edit');
 
-    Route::put('/review/{review}', [ReviewController::class, 'reviewUpdate'])->name('reviews.update');
+    Route::put('/review/{review}', [ReviewController::class, 'update'])->name('reviews.update');
 
-    Route::delete('/reviews/{review}', [ReviewController::class, 'reviewDelete'])->name('reviews.destroy');
+    Route::delete('/reviews/{review}', [ReviewController::class, 'delete'])->name('reviews.destroy');
 
     Route::get('/ranking', [BookController::class, 'ranking'])->name('ranking.index');
 
