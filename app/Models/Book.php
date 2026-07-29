@@ -29,19 +29,6 @@ class Book extends Model
         return $this->belongsTo(User::class);
     }
 
-    public function bookFollowers()
-    {
-        return $this->belongsToMany(User::class, 'favorites', 'user_id', 'book_id');
-    }
-
-    public function isFavoriteBy(?User $user): bool 
-    {
-        if (!$user) {
-            return false;
-        }
-        return $this->bookFollowers()->where('user_id', $user->id)->exists();
-    }
-
     public function genres()
     {
         return $this->belongsToMany(Genre::class, 'book_genre');
@@ -50,16 +37,6 @@ class Book extends Model
     public function reviews()
     {
         return $this->hasMany(Review::class);
-    }
-
-    public function reviewFollowers()
-    {
-        return $this->belongsToMany(User::class, 'likes', 'user_id', 'review_id');
-    }
-
-    public function readingPlans()
-    {
-        return $this->hasMany(ReadingPlan::class);
     }
 
     public function scopeKeywordSearch($query, $keyword)

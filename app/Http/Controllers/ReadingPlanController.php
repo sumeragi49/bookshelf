@@ -19,7 +19,7 @@ class ReadingPlanController extends Controller
         $query -> where('user_id', $user->id);
         //inputで選択した値が"0"の時Laravel,PHPではif文が「嘘(false)」と判断するため検索失敗扱い->defaultが表示され全件が取得される。そのため「filled」を使用する
         if ($request->filled('status')) {
-            $query -> where('status', $request->status);
+            //$query -> where('status', $request->status);
         }
 
         $readingPlans = $query->get();

@@ -4,7 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use App\Models\Notification as InfoNotification;
+use App\Models\InfoNotification;
 use Carbon\Carbon;
 use App\Models\User;
 use App\Notifications\Notification;

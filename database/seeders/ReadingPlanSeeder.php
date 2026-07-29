@@ -25,7 +25,7 @@ class ReadingPlanSeeder extends Seeder
             'user_id' => '1',
             'book_id' => '2',
             'target_date' => '2026-08-06',
-            'status' => '1',
+            'status' => '0',
         ];
         DB::table('reading_plan')->insert($param);
 
@@ -50,7 +50,7 @@ class ReadingPlanSeeder extends Seeder
             'user_id' => '3',
             'book_id' => '2',
             'target_date' => '2026-08-06',
-            'status' => '1',
+            'status' => '0',
         ];
         DB::table('reading_plan')->insert($param);
     }

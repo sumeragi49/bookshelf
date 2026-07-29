@@ -15,7 +15,7 @@ class SendReadingDeadlineNotifications extends Command
      *
      * @var string
      */
-    protected $signature = 'app:send-reading-notifications';
+    protected $signature = 'app:send-notifications';
     protected $description = '目標読了日に応じた通知を自動送信します';
 
     /**
@@ -48,9 +48,9 @@ class SendReadingDeadlineNotifications extends Command
 
         foreach ($records as $record) {
 
-            if (!$record->user) {
-                continue;
-            }
+            //if (!$record->user) {
+                //continue;
+            //}
 
             $targetDate = Carbon::parse($record->target_date)->startOfDay();
 
@@ -76,10 +76,10 @@ class SendReadingDeadlineNotifications extends Command
                 //continue;
             //}
 
-            if (!$record->user) {
-                $this->error("-> ユーザーに紐づきなし");
-                continue;
-            }
+            //if (!$record->user) {
+                //$this->error("-> ユーザーに紐づきなし");
+                //continue;
+            //}
 
             $record->user->notify(new InformationNotification($type, $record));
             $this->info("-> [成功] [{$record->user->id}]への通知を保存");

@@ -4,10 +4,12 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Concerns\HasUuids;
+
 
 class InfoNotification extends Model
 {
-    use HasFactory;
+    use HasFactory, HasUuids;
 
     protected $table = 'notifications';
 
@@ -18,9 +20,4 @@ class InfoNotification extends Model
         'data',
         'read_at',
     ];
-
-    public function user()
-    {
-        return $this->belongsTo(User::class);
-    }
 }
