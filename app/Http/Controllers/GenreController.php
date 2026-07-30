@@ -28,7 +28,7 @@ class GenreController extends Controller
             'name' => $request->input('name'),
         ]);
 
-        return redirect()->route('genres.index');
+        return redirect()->route('genres.index')->with('success', 'ジャンルを登録しました。');
     }
 
     public function show($genreId)
@@ -56,7 +56,7 @@ class GenreController extends Controller
             'name' => $request->input('name'),
         ]);
 
-        return redirect()->route('genres.index');
+        return redirect()->route('genres.index')->with('success', 'ジャンルを編集しました。');
     }
 
     public function delete($genreId)
@@ -65,6 +65,6 @@ class GenreController extends Controller
 
         $genre->delete();
 
-        return redirect()->back();
+        return redirect()->route('genres.index')->with('success', 'ジャンルを削除しました。');
     }
 }

@@ -8,7 +8,7 @@ use App\Http\Requests\ReviewRequest;
 
 class ReviewController extends Controller
 {
-    public function reviewStore(ReviewRequest $request, $bookId)
+    public function store(ReviewRequest $request, $bookId)
     {
         $user = auth()->user();
 
@@ -19,20 +19,20 @@ class ReviewController extends Controller
             'comment' => $request->input('comment'),
         ]);
 
-        return redirect()->back();
+        return redirect()->route('genres.index')->with('success', 'レビューを登録しました。');
     }
 
-    public function reviewEdit($reviewId)
+    public function edit($reviewId)
     {
         $review = Review::with('book')
                -> findOrFail($reviewId);
 
-        $this->authorize('update', $review);
+        $this->authorize('edit', $review);
 
         return view('reviews.edit', compact('review'));
     }
 
-    public function reviewUpdate(ReviewRequest $request,$reviewId)
+    public function update(ReviewRequest $request,$reviewId)
     {
         $review = Review::findOrFail($reviewId);
 
@@ -43,10 +43,12 @@ class ReviewController extends Controller
             'comment' => $request->input('comment'),
         ]);
 
-        return redirect()->route('books.show',['book' => $bookId]);
+        $this->authorize('update', $review);
+
+        return redirect()->route('books.show',['book' => $bookId])->with('success', 'レビューを編集しました。');
     }
 
-    public function ReviewDelete($reviewId)
+    public function delete($reviewId)
     {
         $review = Review::findOrFail($reviewId);
 
@@ -54,15 +56,15 @@ class ReviewController extends Controller
 
         $review->delete();
 
-        return redirect()->route('books.index');
+        return redirect()->route('books.index')->with('success', 'レビューを削除しました。');
     }
 
-    public function reviewLike(Request $request, $reviewId)
+    public function like(Request $request, $reviewId)
     {
         $request->user()->likedReviews()->toggle($reviewId);
 
         $review = Review::findOrFail($reviewId);
 
-        return redirect()->route('books.show', $review->book_id);
+        return redirect()->route('books.show', $review->book_id)->with('success', '「いいね」しました。');
     }
 }

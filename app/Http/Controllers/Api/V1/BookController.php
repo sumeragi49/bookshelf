@@ -34,20 +34,19 @@ class BookController extends Controller
     public function show($bookId): JsonResponse
     {
         $book = Book::with('user', 'genres', 'reviews.user')
+             -> withAvg('reviews', 'rating')
+             -> withCount('reviews')
              -> findOrFail($bookId);
-
-        $reviews = Review::where('book_id', $bookId)
-               -> get();
 
         $responseData = [
             'book' => new BookResource($book),
-            'reviews' => ReviewResource::collection($reviews),
+            'reviews' => ReviewResource::collection($book->reviews),
         ];
 
         return response()->json($responseData, 200, [], JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT);
     }
 
-    public function bookCreateStore(BookRequest $request)
+    public function store(BookRequest $request)
     {
         $userId = 1;
 
@@ -74,11 +73,10 @@ class BookController extends Controller
         ], 201, [], JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT);
     }
 
-    public function bookUpdate(BookRequest $request)
+    public function update(BookRequest $request, $bookId)
     {
-        $userId = 1;
+        $userId = auth()->id() ?? 1;
         //更新する書籍データは登録で作成した書籍データを使用。(各自,自由に更新する書籍のbookIdを選択)
-        $bookId = 12;
 
         $book = Book::with('genres')
              -> findOrFail($bookId);
@@ -101,14 +99,12 @@ class BookController extends Controller
         return response()->json([
             'status' => 'success',
             'data' => $book,
-        ], 201, [], JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT);
+        ], 200, [], JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT);
     }
 
-    public function bookDelete()
+    public function delete($bookId)
     {
         //削除する書籍データは登録で作成した書籍データを使用。(各自,自由に削除する書籍のbookIdを選択)
-        $bookId = 12;
-
         $book = Book::findOrFail($bookId);
 
         //$this->authorize('delete', $book);
@@ -120,6 +116,6 @@ class BookController extends Controller
         return response()->json([
             'status' => 'success',
             'data' => $book,
-        ], 201, [], JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT);
+        ], 200, [], JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT);
     }
 }
