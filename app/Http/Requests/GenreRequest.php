@@ -22,7 +22,7 @@ class GenreRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'name' => ['required', 'max:255'],
+            'name' => ['required', 'max:255', 'unique:genres,name'],
         ];
     }
 
@@ -31,6 +31,7 @@ class GenreRequest extends FormRequest
         return [
             'name.required' => 'ジャンル名を入力してください。',
             'name.max' => 'ジャンル名は255文字以内で入力してください。',
+            'name.unique' => 'ジャンル名が重複したものが存在します。'
         ];
     }
 }

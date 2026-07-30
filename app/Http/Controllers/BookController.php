@@ -94,10 +94,6 @@ class BookController extends Controller
             return response()->json($book);
         }
         return response()->json(['error' => '書籍が見つかりませんでした。'], 404);
-        
-        //$statusCode = $response->status();
-
-        //return response()->json(['error' => "APIの呼び出しに失敗しました。(ステータスコード: {$statusCode})"], 500);
     }
 
     public function store(BookRequest $request)
@@ -119,7 +115,7 @@ class BookController extends Controller
             $book->genres()->attach($request->input('genres'));
         });
 
-        return redirect()->route('books.index');
+        return redirect()->route('books.index')->with('success', '書籍を登録しました。');
     }
 
     public function show($bookId)
@@ -134,7 +130,7 @@ class BookController extends Controller
     {
         $request->user()->favoriteBooks()->toggle($bookId);
 
-        return redirect()->route('books.show', $bookId);
+        return redirect()->route('books.show', $bookId)->with('success', 'お気に入りに登録しました。');
     }
 
     public function edit($bookId)
@@ -173,7 +169,7 @@ class BookController extends Controller
 
         $this->authorize('update', $book);
 
-        return redirect()->route('books.show', $book->id);
+        return redirect()->route('books.show', $book->id)->with('success', '書籍を編集しました。');
     }
 
     public function delete($bookId)
@@ -184,7 +180,7 @@ class BookController extends Controller
 
         $book->delete();
 
-        return redirect()->route('books.index');
+        return redirect()->route('books.index')->with('success', '書籍を削除しました。');
     }
 
     public function ranking()

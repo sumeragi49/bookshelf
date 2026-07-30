@@ -26,14 +26,7 @@ class ReviewLikeSeeder extends Seeder
             $likeUserCount = rand(3, 5);
             $randomReviews = $reviews->shuffle()->take($likeUserCount)->pluck('id');
 
-            $user->likedReviews()->sync($randomReviews);
-
-            //foreach ($randomReviews as $review) {
-                //DB::table('likes')->insert([
-                    //'user_id' => $user->id,
-                    //'review_id' => $review->id,
-                //]);
-            //}
+            $user->likedReviews()->syncWithoutDetaching($randomReviews);
         }
     }
 }

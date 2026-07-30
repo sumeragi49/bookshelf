@@ -26,14 +26,7 @@ class FavoriteSeeder extends Seeder
             $favoriteCount = rand(3, 5);
             $randomBooks = $books->shuffle()->take($favoriteCount)->pluck('id');
 
-            $user->favoriteBooks()->sync($randomBooks);
-
-            //foreach ($randomBooks as $book) {
-                //DB::table('favorites')->insert([
-                    //'user_id' => $user->id,
-                    //'book_id' => $book->id,
-                //]);
-            //}
+            $user->favoriteBooks()->syncWithoutDetaching($randomBooks);
         }
     }
 }

@@ -19,7 +19,7 @@ class ReviewController extends Controller
             'comment' => $request->input('comment'),
         ]);
 
-        return redirect()->back();
+        return redirect()->route('genres.index')->with('success', 'レビューを登録しました。');
     }
 
     public function edit($reviewId)
@@ -45,7 +45,7 @@ class ReviewController extends Controller
 
         $this->authorize('update', $review);
 
-        return redirect()->route('books.show',['book' => $bookId]);
+        return redirect()->route('books.show',['book' => $bookId])->with('success', 'レビューを編集しました。');
     }
 
     public function delete($reviewId)
@@ -56,7 +56,7 @@ class ReviewController extends Controller
 
         $review->delete();
 
-        return redirect()->route('books.index');
+        return redirect()->route('books.index')->with('success', 'レビューを削除しました。');
     }
 
     public function like(Request $request, $reviewId)
@@ -65,6 +65,6 @@ class ReviewController extends Controller
 
         $review = Review::findOrFail($reviewId);
 
-        return redirect()->route('books.show', $review->book_id);
+        return redirect()->route('books.show', $review->book_id)->with('success', '「いいね」しました。');
     }
 }

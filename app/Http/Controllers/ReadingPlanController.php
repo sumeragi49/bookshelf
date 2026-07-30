@@ -49,7 +49,7 @@ class ReadingPlanController extends Controller
             'status' => '0',
         ]);
 
-        return redirect()->route('reading-plans.index');
+        return redirect()->route('reading-plans.index')->with('success', '読書計画を作成しました。');
     }
 
     public function edit($planId)
@@ -88,7 +88,7 @@ class ReadingPlanController extends Controller
             'target_date' => $request->input('target_date'),
         ]);
 
-        return redirect()->route('reading-plans.index');
+        return redirect()->route('reading-plans.index')->with('success', '読書計画を編集しました。');
     }
 
     public function delete($planId)
@@ -99,6 +99,6 @@ class ReadingPlanController extends Controller
 
         $this->authorize('delete', $readingPlan);
 
-        return redirect()->route('reading-plans.index');
+        return redirect()->route('reading-plans.index')->with('success', '読書計画を削除しました。');
     }
 }
