@@ -119,25 +119,27 @@ class BookTest extends TestCase
 
     public function test_edit_book()
     {
-        $user = User::find(1);
+        $book = Book::with('user', 'genres')
+             -> find(1);
 
-        $response = $this->actingAs($user)->get('/books/1/edit');
+        $response = $this->actingAs($book->user)->get('/books/1/edit');
 
         $response->assertStatus(200);
-        $response->assertSee('吾輩は猫である')
-                 ->assertSee('夏目漱石')
-                 ->assertSee('9784101010014')
-                 ->assertSee('1905-01-01')
-                 ->assertSee('名前なら既にあるにゃん！')
-                 ->assertSee('https://placehold.co/200x300/e2e8f0/475569?text=1')
-                 ->assertSee('小説');
+        $response->assertSee($book->title)
+                 ->assertSee($book->author)
+                 ->assertSee($book->isbn)
+                 ->assertSee($book->published_date->format('Y-m-d'))
+                 ->assertSee($book->description)
+                 ->assertSee($book->image_url)
+                 ->assertSee($book->genres->first()?->name);
     }
 
     public function test_other_user_edit_book()
     {
-        $user = User::find(2);
+        $user = User::factory()->create();
 
-        $book = Book::find(1);
+        $book = Book::with('user', 'genres')
+             -> find(1);
 
         $response = $this->actingAs($user)->get("/books/{$book->id}/edit");
 
@@ -147,9 +149,8 @@ class BookTest extends TestCase
 
     public function test_update_book()
     {
-        $user = User::find(1);
-
-        $book = Book::find(1);
+        $book = Book::with('user', 'genres')
+             -> find(1);
 
         $updateBook = ([
             'title' => '吾輩は猫である',
@@ -161,7 +162,7 @@ class BookTest extends TestCase
             'genres' => [1],
         ]);
         
-        $response = $this->actingAs($user)->put("/books/{$book->id}", $updateBook);
+        $response = $this->actingAs($book->user)->put("/books/{$book->id}", $updateBook);
 
         $response->assertStatus(302);
 
@@ -172,11 +173,10 @@ class BookTest extends TestCase
 
     public function test_delete_book()
     {
-        $user = User::find(1);
+        $book = Book::with('user', 'genres')
+             -> find(1);
 
-        $book = Book::find(1);
-
-        $response  = $this->actingAs($user)->delete("/books/{$book->id}");
+        $response  = $this->actingAs($book->user)->delete("/books/{$book->id}");
 
         $response->assertStatus(302);
         $this->assertModelMissing($book);
@@ -210,6 +210,7 @@ class BookTest extends TestCase
                -> withAvg('reviews', 'rating')
                -> withCount('reviews')
                -> orderByDesc('reviews_avg_rating')
+               -> take(10)
                -> get();
         //$booksはオブジェクト,それを順番を固定したarray(配列、固定値、文字列)とする
         $rankingBooks = $books->pluck('title')->toArray();
@@ -308,7 +309,7 @@ class BookTest extends TestCase
     {
         $user = User::find(1);
 
-        $books = Book::orderBy('created', 'desc')
+        $books = Book::orderBy('created_at', 'desc')
              -> take(10)
              -> pluck('title')
              -> toArray();

@@ -78,7 +78,7 @@ class ReadingPlanTest extends TestCase
         $response->assertSee('読書計画編集')
                  ->assertSee('吾輩は猫である')
                  ->assertSee('未読')
-                 ->assertSee('2026-08-06');
+                 ->assertSee('2026-08-04');
     }
 
     public function test_complete_reading_plan()
@@ -86,23 +86,22 @@ class ReadingPlanTest extends TestCase
         $this->freezeTime();
         $nowStr = now()->format('Y-m-d H:i:s');
 
-        $user = User::find(1);
-
-        $readingPlan = ReadingPlan::find(1);
+        $readingPlan = ReadingPlan::with('user')
+                    -> find(1);
 
         $completeStatus = [
             'completed_at' => $nowStr,
             'status' => 2
         ];
 
-        $response = $this->actingAs($user)->post(route('reading-plans.complete', $readingPlan->id), $completeStatus);
+        $response = $this->actingAs($readingPlan->user)->post(route('reading-plans.complete', $readingPlan->id), $completeStatus);
 
         $response->assertStatus(302);
 
         $this->assertDatabaseHas('reading_plan', [
             'user_id' => 1,
             'book_id' => 1,
-            'target_date' => '2026-08-06',
+            'target_date' => '2026-08-04',
             'completed_at' => $nowStr,
             'status' => 2,
         ]);

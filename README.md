@@ -3,7 +3,11 @@
 ### Laravelプロジェクト作成(Laravel 10.x)<br>
 ・Laravel 10.xインストール<br>
  docker run --rm -u "$(id -u):$(id -g)" -v "$(pwd):/var/www/html" -w /var/www/html -e COMPOSER_CACHE_DIR=/tmp/composer_cache laravelsail/php82-composer:latest composer create-project laravel/laravel:^10.0 bookshelf-app<br>
- ### Laravel Sailインストール<br>
+### 作成したbookshelf-appにgit hubのファイルをコピー<br>
+・からのディレクトリに提出したgithubのリポジトリをクローン<br>
+  git clone git@github.com:sumeragi49/bookshelf.git<br>
+・bookshelf-appディレクトリをクローンし,ファイルを保存したディレクトリで上書きする。(ドラッグ＆ドロップ)<br>
+### Laravel Sailインストール<br>
 ・プロジェクトディレクトリに移動<br>
     cd bookshelf-app<br>
 ・Laravel Sailをインストール<br>
@@ -51,7 +55,7 @@ export default {<br>
     },<br>
     plugins: [forms],<br>
 };<br>
-6,Vite開発サーバーの起動<br>
+6,Vite開発サーバーの起動(画面表示の時に継続的使用)<br>
     sail npm run dev<br>
 ### phpMyAdminの追加<br>
 ・composer.yamlファイルのmysqlの後に以下を記載<br>

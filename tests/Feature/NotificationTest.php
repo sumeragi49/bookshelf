@@ -51,7 +51,7 @@ class NotificationTest extends TestCase
         $response = $this->actingAs($user)->post(route('notifications.read', $notification->id), $updateNotification);
 
         $response->assertStatus(302);
-        $this->assertDatabaseHas('Notifications', [
+        $this->assertDatabaseHas('notifications', [
             'read_at' => $readAt,
             'updated_at' => $readAt,
         ]);
