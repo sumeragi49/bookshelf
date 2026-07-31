@@ -1,6 +1,7 @@
+# 環境構築
 ## Laravel環境構築<br>
 ### Laravelプロジェクト作成(Laravel 10.x)<br>
-・Laravel 10.xインストール
+・Laravel 10.xインストール<br>
  docker run --rm -u "$(id -u):$(id -g)" -v "$(pwd):/var/www/html" -w /var/www/html -e COMPOSER_CACHE_DIR=/tmp/composer_cache laravelsail/php82-composer:latest composer create-project laravel/laravel:^10.0 bookshelf-app<br>
  ### Laravel Sailインストール<br>
 ・プロジェクトディレクトリに移動<br>
