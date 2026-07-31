@@ -1,5 +1,3 @@
-# 環境構築
-
 ## Laravel環境構築<br>
 ### Laravelプロジェクト作成(Laravel 10.x)<br>
 ・Laravel 10.xインストール
@@ -299,3 +297,4 @@ created_at: now()<br>
 ・sail artisan app:prune-notifications<br>
 
 ## ER図<br>
+<img width="1450" height="1460" alt="スクリーンショット 2026-07-30 083650" src="https://github.com/user-attachments/assets/24be4592-5270-460c-8b58-0a2909d8298b" />
