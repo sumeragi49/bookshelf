@@ -299,4 +299,3 @@ created_at: now()<br>
 ・sail artisan app:prune-notifications<br>
 
 ## ER図<br>
-![alt text](<スクリーンショット 2026-07-30 083650-1.png>)
