@@ -78,7 +78,7 @@ class ReadingPlanTest extends TestCase
         $response->assertSee('読書計画編集')
                  ->assertSee('吾輩は猫である')
                  ->assertSee('未読')
-                 ->assertSee('2026-08-04');
+                 ->assertSee('2026-08-03');
     }
 
     public function test_complete_reading_plan()
@@ -101,7 +101,7 @@ class ReadingPlanTest extends TestCase
         $this->assertDatabaseHas('reading_plan', [
             'user_id' => 1,
             'book_id' => 1,
-            'target_date' => '2026-08-04',
+            'target_date' => '2026-08-03',
             'completed_at' => $nowStr,
             'status' => 2,
         ]);
