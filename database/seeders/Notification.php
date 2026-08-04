@@ -21,7 +21,7 @@ class Notification extends Seeder
             'notifiable_type' => 'App\Models\User',
             'notifiable_id' => '1',
             'data' => '{"reading_plan_id":1,"body":"「吾輩は猫である」に関するお知らせ","title":"吾輩は猫である"}',
-            'created_at' =>now()
+            'created_at' =>'2026-07-01'
         ];
         DB::table('notifications')->insert($param);
     }
