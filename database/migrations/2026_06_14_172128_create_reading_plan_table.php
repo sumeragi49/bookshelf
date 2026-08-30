@@ -17,7 +17,7 @@ return new class extends Migration
             $table->foreignId('book_id')->constrained()->cascadeOnDelete();
             $table->datetime('target_date');
             $table->datetime('completed_at')->nullable();
-            $table->tinyInteger('status')->comment('0:未読,2:読了');
+            $table->string('status', 20)->default('in_progress')->comment('in_progress,completed,expired');
             $table->timestamps();
         });
     }

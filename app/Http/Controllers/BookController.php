@@ -31,6 +31,8 @@ class BookController extends Controller
               -> sortOrder($sort)
               -> paginate(10);
 
+        $books->appends($request->all());
+
         return view('books.index',compact('books', 'genres', 'keyword', 'genre', 'sort'));
     }
 
@@ -55,9 +57,15 @@ class BookController extends Controller
         if (!empty($apiKey)) {
             $url .= '&key=' . $apiKey;
         }
-
+        //API接続でエラー確認の場合コメントアウトしているcodeのコメントアウトを外す。
         try {
+            //一時的にサーバーのタイムアウトを強制再現
+            //throw new \Illuminate\Http\Client\ConnectionException("Operation timed out");
+            //
             $response = Http::withoutVerifying()->get($url);
+
+            //return response()->json($response->json());
+
         } catch (\Exception $e) {
             return response()->json(['error' => 'APIサーバーへの接続に失敗しました。'], 500);
         }
@@ -100,9 +108,9 @@ class BookController extends Controller
     {
         $user = Auth::user();
 
-        DB::transaction(function () use ($user, $request) {
+        $book = DB::transaction(function () use ($user, $request) {
 
-            $book = Book::create([
+            $newBook = Book::create([
                 'user_id' => $user->id,
                 'title' => $request->input('title'),
                 'author' => $request->input('author'),
@@ -112,10 +120,12 @@ class BookController extends Controller
                 'image_url' => $request->input('image_url'),
             ]);
 
-            $book->genres()->attach($request->input('genres'));
+            $newBook->genres()->attach($request->input('genres'));
+
+            return $newBook;
         });
 
-        return redirect()->route('books.index')->with('success', '書籍を登録しました。');
+        return redirect()->route('books.show', $book->id)->with('success', '書籍を登録しました。');
     }
 
     public function show($bookId)
@@ -138,7 +148,7 @@ class BookController extends Controller
         $book = Book::with('genres')
              -> findOrFail($bookId);
 
-        $genres = genre::all();
+        $genres = Genre::all();
 
         $this->authorize('edit', $book);
 
@@ -185,7 +195,9 @@ class BookController extends Controller
 
     public function ranking()
     {
-        $rankedBooks = Book::with('reviews')
+        //レビューが0件以上のものに限定
+        $rankedBooks = Book::has('reviews')
+                    -> with('reviews')
                     -> withAvg('reviews', 'rating')
                     -> withCount('reviews')
                     -> orderByDesc('reviews_avg_rating')

@@ -4,8 +4,10 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use App\Models\Book;
 use App\Models\ReadingPlan;
+use App\Models\InfoNotification;
 use App\Http\Requests\ReadingPlanRequest;
 
 class ReadingPlanController extends Controller
@@ -19,7 +21,7 @@ class ReadingPlanController extends Controller
         $query -> where('user_id', $user->id);
         //inputで選択した値が"0"の時Laravel,PHPではif文が「嘘(false)」と判断するため検索失敗扱い->defaultが表示され全件が取得される。そのため「filled」を使用する
         if ($request->filled('status')) {
-            //$query -> where('status', $request->status);
+            $query -> where('status', $request->status);
         }
 
         $readingPlans = $query->get();
@@ -46,7 +48,7 @@ class ReadingPlanController extends Controller
             'user_id' => $user->id,
             'book_id' =>$request->input('book_id'),
             'target_date' => $request->input('target_date'),
-            'status' => '0',
+            'status' => 'in_progress',
         ]);
 
         return redirect()->route('reading-plans.index')->with('success', '読書計画を作成しました。');
@@ -68,7 +70,7 @@ class ReadingPlanController extends Controller
 
         $readingPlan->update([
             'completed_at' => now(),
-            'status' => '2',
+            'status' => 'completed',
         ]);
 
         $this->authorize('complete', $readingPlan);
@@ -86,18 +88,26 @@ class ReadingPlanController extends Controller
 
         $readingPlan->update([
             'target_date' => $request->input('target_date'),
+            'status' => 'in_progress',
         ]);
 
-        return redirect()->route('reading-plans.index')->with('success', '読書計画を編集しました。');
+        return redirect()->route('reading-plans.index')->with('success', '読書計画を更新しました。');
     }
 
     public function delete($planId)
     {
         $readingPlan = ReadingPlan::findOrFail($planId);
 
-        $readingPlan->delete();
-
         $this->authorize('delete', $readingPlan);
+
+        DB::transaction(function () use ($readingPlan) {
+
+            DB::table('notifications')
+              -> whereJsonContains('data', ['reading_plan_id' => $readingPlan->id])
+              -> delete();
+
+            $readingPlan->delete();
+        });
 
         return redirect()->route('reading-plans.index')->with('success', '読書計画を削除しました。');
     }

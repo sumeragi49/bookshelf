@@ -29,8 +29,12 @@ class InformationNotification extends Notification
      *
      * @return array<int, string>
      */
+    //statusはオブジェクトであり、文字列である'completed'とは比較が成立しないため、「?->value」をつけて、厳密比較する
     public function via(object $notifiable): array
     {
+        if ($this->record->status?->value === 'completed') {
+            return [];
+        }
         //return ['mail'];
         return ['database'];
     }

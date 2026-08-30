@@ -78,10 +78,11 @@ class ReportController extends Controller
                         DB::raw('COUNT(reviews.id) as review_count')
                       )
                       -> where('reviews.user_id', $user->id)
+                      -> where('reviews.rating', '>=', 4)
                       -> groupBy('books.id', 'books.title', 'books.author')
                       -> orderBy('avg_rating', 'desc')
                       -> orderBy('review_count', 'desc')
-                      -> limit(3)
+                      -> limit(5)
                       -> get()
                       -> map(function ($book) {
                         return [

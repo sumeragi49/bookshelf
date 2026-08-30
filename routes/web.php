@@ -48,9 +48,7 @@ Route::middleware('auth')->group(function () {
 
     Route::delete('/reviews/{review}', [ReviewController::class, 'delete'])->name('reviews.destroy');
 
-    Route::get('/ranking', [BookController::class, 'ranking'])->name('ranking.index');
-
-    Route::get('/favorite', [BookController::class, 'favorite'])->name('favorites.index');
+    Route::get('/favorites', [BookController::class, 'favorite'])->name('favorites.index');
 
     Route::get('/genres', [GenreController::class, 'index'])->name('genres.index');
 
@@ -66,7 +64,7 @@ Route::middleware('auth')->group(function () {
 
     Route::post('/genres', [GenreController::class, 'store'])->name('genres.store');
 
-    Route::get('/report', [ReportController::class, 'index'])->name('reports.index');
+    Route::get('/reports', [ReportController::class, 'index'])->name('reports.index');
 
     Route::get('/reading-plans', [ReadingPlanController::class, 'index'])->name('reading-plans.index');
 
@@ -86,5 +84,7 @@ Route::middleware('auth')->group(function () {
 
     Route::post('/notifications/{id}/read', [NotificationController::class, 'store'])->name('notifications.read');
 });
+
+Route::get('/ranking', [BookController::class, 'ranking'])->name('ranking.index');
 
 Route::get('/books/{book}', [BookController::class, 'show'])->name('books.show');
