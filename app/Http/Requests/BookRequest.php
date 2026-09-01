@@ -25,7 +25,7 @@ class BookRequest extends FormRequest
         //{book},{id}のどちらでもURL末尾の数値を抽出
         $bookId = $this->route('book') ?? $this->route('id');
 
-        $isbnRules = ['required', 'max:13'];
+        $isbnRules = ['required','string','max:13'];
 
         if ($this->isMethod('post')) {
             $isbnRules[] = Rule::unique('books', 'isbn');
@@ -34,10 +34,10 @@ class BookRequest extends FormRequest
         }
 
         return [
-            'title' => ['required','max:255' ],
-            'author' => ['required','max:255'],
+            'title' => ['required','string','max:255' ],
+            'author' => ['required','string','max:255'],
             'isbn' => $isbnRules,
-            'published_date' => ['required'],
+            'published_date' => ['required', 'date'],
             'genres' => ['required', 'array'],
             'image_url' => ['nullable', 'url'],
         ];
@@ -54,6 +54,7 @@ class BookRequest extends FormRequest
             'isbn.max' => 'ISBNは13桁で入力してください。',
             'isbn.unique' => '入力されたISBNは重複したものが存在します。',
             'published_date.required' => '出版日を指定くしてください。',
+            'published_date.date' => '出版日を有効な日付で入力してください。'
             'genres.required' => 'ジャンルを一つ以上選択してください。',
             'image_url.url' => '画像はURL形式で入力してください。',
         ];
