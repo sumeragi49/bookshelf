@@ -3,6 +3,7 @@
 namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
 
 class GenreRequest extends FormRequest
 {
@@ -21,8 +22,18 @@ class GenreRequest extends FormRequest
      */
     public function rules(): array
     {
+        $genreId = $this->route('genre') ?? $this->route('id');
+
+        $genreRules = ['required','string','max:255'];
+
+        if ($this->isMethod('post')) {
+            $genreRules[] = Rule::unique('genres', 'name');
+        } else {
+            $genreRules[] = Rule::unique('genres', 'name')->ignore($genreId);
+        }
+
         return [
-            'name' => ['required', 'max:255', 'unique:genres,name'],
+            'name' => $genreRules,
         ];
     }
 
