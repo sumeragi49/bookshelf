@@ -17,14 +17,22 @@ use Illuminate\Http\JsonResponse;
 
 class BookController extends Controller
 {
-    public function index(): JsonResponse
+    public function index(Request $request): JsonResponse
     {
         $user = Auth::user();
+
+        $keyword = $request->input('keyword');
+        $genre = $request->input('genre_id');
+        $perPage = $request->input('per_page', 20);
+
+        $perPage = min((int)$perPage, 100);
 
         $books = Book::with('user', 'genres', 'reviews')
               -> withAvg('reviews', 'rating')
               -> withCount('reviews')
-              -> paginate(10);
+              -> genreFilter($genre)
+              -> keywordSearch($keyword)
+              -> paginate($perPage);
 
         return (new BookCollection($books))
                ->response()
