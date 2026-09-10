@@ -11,6 +11,7 @@ use App\Models\Review;
 use App\Http\Requests\BookRequest;
 use App\Http\Resources\BookResource;
 use App\Http\Resources\BookCollection;
+use App\Http\Resources\GenreResource;
 use App\Http\Resources\ReviewResource;
 use App\Http\Resources\ReviewCollection;
 use Illuminate\Http\JsonResponse;
@@ -48,6 +49,7 @@ class BookController extends Controller
 
         $responseData = [
             'book' => new BookResource($book),
+            'genres' => GenreResource::collection($book->genres),
             'reviews' => ReviewResource::collection($book->reviews),
         ];
 
