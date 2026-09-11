@@ -15,6 +15,7 @@ use App\Http\Resources\GenreResource;
 use App\Http\Resources\ReviewResource;
 use App\Http\Resources\ReviewCollection;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
 
 class BookController extends Controller
 {
@@ -42,18 +43,24 @@ class BookController extends Controller
 
     public function show($bookId): JsonResponse
     {
-        $book = Book::with('user', 'genres', 'reviews.user')
-             -> withAvg('reviews', 'rating')
-             -> withCount('reviews')
-             -> findOrFail($bookId);
+        try{
+            $book = Book::with('user', 'genres', 'reviews.user')
+                  -> withAvg('reviews', 'rating')
+                  -> withCount('reviews')
+                  -> findOrFail($bookId);
 
-        $responseData = [
-            'book' => new BookResource($book),
-            'genres' => GenreResource::collection($book->genres),
-            'reviews' => ReviewResource::collection($book->reviews),
-        ];
+            $responseData = [
+                'book' => new BookResource($book),
+                'genres' => GenreResource::collection($book->genres),
+                'reviews' => ReviewResource::collection($book->reviews),
+            ];
 
-        return response()->json($responseData, 200, [], JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT);
+            return response()->json($responseData, 200, [], JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT);
+        } catch (ModelNotFoundException $e) {
+            return response()->json([
+                'error' => '書籍が見つかりませんでした。'
+            ], 404, [], JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT);
+        }
     }
 
     public function store(BookRequest $request)
