@@ -65,7 +65,7 @@ class BookController extends Controller
 
     public function store(BookRequest $request)
     {
-        $userId = 1;
+        $userId = auth()->id();
 
         $book = DB::transaction(function () use ($userId, $request) {
 
