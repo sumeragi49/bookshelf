@@ -92,31 +92,36 @@ class BookController extends Controller
 
     public function update(BookRequest $request, $bookId)
     {
-        $userId = auth()->id() ?? 1;
-        //更新する書籍データは登録で作成した書籍データを使用。(各自,自由に更新する書籍のbookIdを選択)
+        $userId = auth()->id();
 
-        $book = Book::with('genres')
-             -> findOrFail($bookId);
+        try{
+            $book = Book::with('genres')
+                 -> findOrFail($bookId);
 
-        DB::transaction(function () use ($userId,$book, $request) {
+            DB::transaction(function () use ($userId,$book, $request) {
 
-            $book->update([
-                'user_id' => $userId,
-                'title' => $request->input('title'),
-                'author' => $request->input('author'),
-                'isbn' => $request->input('isbn'),
-                'published_date' => $request->input('published_date'),
-                'description' => $request->input('description'),
-                'image_url' => $request->input('image_url'),
-            ]);
+                $book->update([
+                    'user_id' => $userId,
+                    'title' => $request->input('title'),
+                    'author' => $request->input('author'),
+                    'isbn' => $request->input('isbn'),
+                    'published_date' => $request->input('published_date'),
+                    'description' => $request->input('description'),
+                    'image_url' => $request->input('image_url'),
+                ]);
 
-            $book->genres()->sync($request->input('genres'));
-        });
+                $book->genres()->sync($request->input('genres'));
+            });
 
-        return response()->json([
-            'status' => 'success',
-            'data' => $book,
-        ], 200, [], JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT);
+            return response()->json([
+                'status' => 'success',
+                'data' => $book,
+            ], 200, [], JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT);
+        } catch (ModelNotFoundException $e) {
+            return response()->json([
+                'error' => '書籍が見つかりませんでした。'
+            ], 404, [], JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT);
+        }
     }
 
     public function delete($bookId)
