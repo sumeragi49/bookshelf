@@ -126,18 +126,14 @@ class BookController extends Controller
 
     public function delete($bookId)
     {
-        //削除する書籍データは登録で作成した書籍データを使用。(各自,自由に削除する書籍のbookIdを選択)
+        $userId = auth()->id();
+
         $book = Book::findOrFail($bookId);
 
-        //$this->authorize('delete', $book);
-        //「現在ログインしているユーザー」に権限があるかどうかをチェックするcode
-        //使用する場合はTinker上で「auth()->loginUsingId(1);」と入力してログイン状態を作る。
+        $this->authorize('delete', $book);
 
         $book->delete();
 
-        return response()->json([
-            'status' => 'success',
-            'data' => $book,
-        ], 200, [], JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT);
+        return response()->noContent();
     }
 }
