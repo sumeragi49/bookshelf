@@ -128,12 +128,18 @@ class BookController extends Controller
     {
         $userId = auth()->id();
 
-        $book = Book::findOrFail($bookId);
+        try{
+            $book = Book::findOrFail($bookId);
 
-        $this->authorize('delete', $book);
+            $this->authorize('delete', $book);
 
-        $book->delete();
+            $book->delete();
 
-        return response()->noContent();
+            return response()->noContent();
+        } catch (ModelNotFoundException $e) {
+            return response()->json([
+                'error' => '書籍が見つかりませんでした。'
+            ], 404, [], JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT);
+        }
     }
 }
