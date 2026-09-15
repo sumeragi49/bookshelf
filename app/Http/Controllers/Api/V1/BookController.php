@@ -40,7 +40,7 @@ class BookController extends Controller
                ->response()
                ->setStatusCode(200);
     }
-
+    //BookResource,GenreResource,ReviewResource使用
     public function show($bookId): JsonResponse
     {
         try{
