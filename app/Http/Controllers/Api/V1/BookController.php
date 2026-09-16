@@ -8,7 +8,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Http\Request;
 use App\Models\Book;
 use App\Models\Review;
-use App\Http\Requests\BookRequest;
+use App\Http\Requests\Api\V1\IndexBookRequest;
 use App\Http\Resources\BookResource;
 use App\Http\Resources\BookCollection;
 use App\Http\Resources\GenreResource;
@@ -19,22 +19,18 @@ use Illuminate\Database\Eloquent\ModelNotFoundException;
 
 class BookController extends Controller
 {
-    public function index(Request $request): JsonResponse
+    public function index(IndexBookRequest $request): JsonResponse
     {
         $user = Auth::user();
 
-        $keyword = $request->input('keyword');
-        $genre = $request->input('genre_id');
-        $perPage = $request->input('per_page', 20);
-
-        $perPage = min((int)$perPage, 100);
+        $validated = $request->validated();
 
         $books = Book::with('user', 'genres', 'reviews')
               -> withAvg('reviews', 'rating')
               -> withCount('reviews')
-              -> genreFilter($genre)
-              -> keywordSearch($keyword)
-              -> paginate($perPage);
+              -> genreFilter($validated['genre_id'] ?? null)
+              -> keywordSearch($validated['keyword'] ?? null)
+              -> paginate($validated['per_page']);
 
         return (new BookCollection($books))
                ->response()
