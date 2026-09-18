@@ -9,6 +9,7 @@ use Illuminate\Http\Request;
 use App\Models\Book;
 use App\Models\Review;
 use App\Http\Requests\Api\V1\IndexBookRequest;
+use App\Http\Requests\Api\V1\SaveBookRequest;
 use App\Http\Resources\BookResource;
 use App\Http\Resources\BookCollection;
 use App\Http\Resources\GenreResource;
@@ -59,7 +60,7 @@ class BookController extends Controller
         }
     }
 
-    public function store(BookRequest $request)
+    public function store(SaveBookRequest $request)
     {
         $userId = auth()->id();
 
