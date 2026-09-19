@@ -95,6 +95,8 @@ class BookController extends Controller
             $book = Book::with('genres')
                  -> findOrFail($bookId);
 
+            //$this->authorize('update', $book);
+
             DB::transaction(function () use ($userId,$book, $request) {
 
                 $book->update([
