@@ -87,7 +87,7 @@ class BookController extends Controller
         ], 201, [], JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT);
     }
 
-    public function update(BookRequest $request, $bookId)
+    public function update(SaveBookRequest $request, $bookId)
     {
         $userId = auth()->id();
 
