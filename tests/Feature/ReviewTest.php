@@ -55,8 +55,7 @@ class ReviewTest extends TestCase
 
     public function test_edit_review()
     {
-        $review = Review::with('book', 'user')
-               -> find(1);
+        $review = Review::factory()->create();
 
         $user = $review->user;
 
