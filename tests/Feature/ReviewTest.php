@@ -21,9 +21,8 @@ class ReviewTest extends TestCase
 
     public function test_store_review()
     {
-        $user = User::find(1);
-
-        $book = Book::find(1);
+        $user = User::factory()->create();
+        $book = Book::factory()->create();
 
         $review = [
             'user_id' => $user->id,
@@ -36,8 +35,22 @@ class ReviewTest extends TestCase
 
         $response->assertStatus(302);
         $this->assertDatabaseHas('reviews', [
+            'user_id' => $user->id,
+            'book_id' => $book->id,
             'comment' => '面白く、とても参考になる作品だと感じました。'
         ]);
+    }
+    //guestでのログイン
+    public function test_guest_login_redirect()
+    {
+        $book = Book::factory()->create();
+
+        $review = ['rating' => 5, 'comment' => 'ゲスト投稿'];
+
+        $response = $this->post(route('reviews.store',$book->id), $review);
+
+        $response->assertStatus(302);
+        $response->assertRedirect(route('login'));
     }
 
     public function test_edit_review()
