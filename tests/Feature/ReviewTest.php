@@ -78,18 +78,14 @@ class ReviewTest extends TestCase
         $response->assertStatus(403);
     }
 
-    public function test_update_review()
+    public function test_reviewer_update_review()
     {
-        $review = Review::with('book', 'user')
-               -> find(1);
-
+        $review = Review::factory()->create();
         $user = $review->user;
 
         $updateReview = [
-            'user_id' => $user->id,
-            'book_id' => $review->book->id,
-            'rating' => '5',
-            'comment' => '面白く、とても参考になる作品だと感じました。',
+            'rating' => 4,
+            'comment' => '新しく修正したコメントです。',
         ];
 
         $response = $this->actingAs($user)->put(route('reviews.update', $review->id), $updateReview);
@@ -97,7 +93,8 @@ class ReviewTest extends TestCase
         $response->assertStatus(302);
         $this->assertDatabaseHas('reviews', [
             'id' => $review->id,
-            'comment' => '面白く、とても参考になる作品だと感じました。'
+            'rating' => 4,
+            'comment' => '新しく修正したコメントです。'
         ]);
     }
 
