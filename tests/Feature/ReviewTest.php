@@ -37,6 +37,7 @@ class ReviewTest extends TestCase
         $this->assertDatabaseHas('reviews', [
             'user_id' => $user->id,
             'book_id' => $book->id,
+            'rating' => 5,
             'comment' => '面白く、とても参考になる作品だと感じました。'
         ]);
     }
@@ -65,6 +66,16 @@ class ReviewTest extends TestCase
         $response->assertSee($review->book->title)
                  ->assertSee($review->rating)
                  ->assertSee($review->comment);
+    }
+
+    public function test_other_user_access_edit()
+    {
+        $review = Review::factory()->create();
+        $user = User::factory()->create();
+
+        $response = $this->actingAs($user)->get(route('reviews.edit', $review->id));
+
+        $response->assertStatus(403);
     }
 
     public function test_update_review()
