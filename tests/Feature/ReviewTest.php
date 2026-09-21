@@ -98,6 +98,27 @@ class ReviewTest extends TestCase
         ]);
     }
 
+    public function test_otherUser_cannot_update_review()
+    {
+        $review = Review::factory()->create([
+            'comment' => '元のコメント'
+        ]);
+        $user = User::factory()->create();
+
+        $updateReview = [
+            'rating' => 4,
+            'comment' => '第三者の不正な更新内容です。',
+        ];
+
+        $response = $this->actingAs($user)->put(route('reviews.update', $review->id), $updateReview);
+
+        $response->assertStatus(403);
+        $this->assertDatabaseHas('reviews', [
+            'id' => $review->id,
+            'comment' => '元のコメント',
+        ]);
+    }
+
     public function test_delete_review()
     {
         $review = Review::with('book', 'user')

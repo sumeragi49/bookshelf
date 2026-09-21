@@ -38,12 +38,12 @@ class ReviewController extends Controller
 
         $bookId = $review->book_id;
 
+        $this->authorize('update', $review);
+
         $review->update([
             'rating' => $request->input('rating'),
             'comment' => $request->input('comment'),
         ]);
-
-        $this->authorize('update', $review);
 
         return redirect()->route('books.show',['book' => $bookId])->with('success', 'レビューを更新しました。');
     }
