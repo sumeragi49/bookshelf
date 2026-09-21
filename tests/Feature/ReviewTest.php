@@ -119,11 +119,9 @@ class ReviewTest extends TestCase
         ]);
     }
 
-    public function test_delete_review()
+    public function test_reviewer_delete_review()
     {
-        $review = Review::with('book', 'user')
-               -> find(1);
-
+        $review = Review::factory()->create();
         $user = $review->user;
 
         $response = $this->actingAs($user)->delete(route('reviews.destroy', $review->id));
