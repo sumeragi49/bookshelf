@@ -6,6 +6,7 @@ use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
 use Tests\TestCase;
 use App\Models\User;
+use App\Models\Book;
 use App\Models\Genre;
 
 class GenreTest extends TestCase
@@ -16,14 +17,11 @@ class GenreTest extends TestCase
     use RefreshDatabase;
 
     protected $seed = true;
-
+    //一覧表示のテスト
     public function test_index_genre()
     {
-        $user = User::find(1);
-
-        $genres = Genre::with('books')
-               -> withCount('books')
-               -> get();
+        $user = User::factory()->create();
+        $genres = Genre::factory()->has(Book::factory()->count(2))->count(3)->create();
 
         $response = $this->actingAs($user)->get(route('genres.index'));
 
