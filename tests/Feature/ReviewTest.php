@@ -98,7 +98,7 @@ class ReviewTest extends TestCase
         ]);
     }
 
-    public function test_otherUser_cannot_update_review()
+    public function test_other_user_cannot_update_review()
     {
         $review = Review::factory()->create([
             'comment' => '元のコメント'
@@ -128,6 +128,19 @@ class ReviewTest extends TestCase
 
         $response->assertStatus(302);
         $this->assertModelMissing($review);
+    }
+
+    public function test_other_user_cannot_delete_review()
+    {
+        $review = Review::factory()->create();
+        $user = User::factory()->create();
+
+        $response = $this->actingAs($user)->delete(route('reviews.destroy', $review->id));
+
+        $response->assertStatus(403);
+        $this->assertDatabaseHas('reviews', [
+            'id' => $review->id,
+        ]);
     }
 
     public function test_like_toggle_book()
