@@ -44,7 +44,7 @@ class GenreTest extends TestCase
 
     public function test_store_genre()
     {
-        $user = User::find(1);
+        $user = User::factory()->create();
 
         $genre = [
             'name' => 'SF',
