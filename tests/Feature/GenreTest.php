@@ -31,10 +31,10 @@ class GenreTest extends TestCase
             $response->assertSee($genre->name);
         }
     }
-
+    // 登録画面表示のテスト
     public function test_create_genre()
     {
-        $user = User::find(1);
+        $user = User::factory()->create();
 
         $response = $this->actingAs($user)->get(route('genres.create'));
 
