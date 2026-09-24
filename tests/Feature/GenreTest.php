@@ -79,22 +79,21 @@ class GenreTest extends TestCase
         $response->assertStatus(200);
         $response->assertSee('SF');
     }
-
+    //ジャンルの更新機能のテスト
     public function test_update_genre()
     {
-        $user = User::find(1);
-
-        $genre = Genre::find(1);
+        $user = User::factory()->create();
+        $genre = Genre::factory()->create(['name' => '古いジャンル']);
 
         $updateGenre = [
-            'name' => '小説・携帯小説',
+            'name' => '新しいジャンル',
         ];
 
         $response = $this->actingAs($user)->put(route('genres.update', $genre->id), $updateGenre);
 
         $response->assertStatus(302);
         $this->assertDatabaseHas('genres', [
-            'name' => '小説・携帯小説'
+            'name' => '新しいジャンル'
         ]);
     }
 
