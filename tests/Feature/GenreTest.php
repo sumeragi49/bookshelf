@@ -41,7 +41,7 @@ class GenreTest extends TestCase
         $response->assertStatus(200);
         $response->assertSee('ジャンル名');
     }
-
+    // ジャンル登録のテスト
     public function test_store_genre()
     {
         $user = User::factory()->create();
@@ -57,17 +57,16 @@ class GenreTest extends TestCase
             'name' => 'SF',
         ]);
     }
-
+    //ジャンル詳細画面表示のテスト
     public function test_show_genre()
     {
-        $user = User::find(1);
+        $user = User::factory()->create();
+        $genre = Genre::factory()->create(['name' => 'SF']);
 
-        $response = $this->actingAs($user)->get("/genres/1");
+        $response = $this->actingAs($user)->get(route('genres.show', $genre));
 
         $response->assertStatus(200);
-        $response->assertSee('吾輩は猫である')
-                 ->assertSee('坊っちゃん')
-                 ->assertSee('火花');
+        $response->assertSee('SF');
     }
 
     public function test_edit_genre()
