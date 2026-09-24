@@ -68,15 +68,16 @@ class GenreTest extends TestCase
         $response->assertStatus(200);
         $response->assertSee('SF');
     }
-
+    //ジャンル編集画面表示のテスト
     public function test_edit_genre()
     {
-        $user = User::find(1);
+        $user = User::factory()->create();
+        $genre = Genre::factory()->create(['name' => 'SF']);
 
-        $response = $this->actingAs($user)->get("/genres/1/edit");
+        $response = $this->actingAs($user)->get(route('genres.edit', $genre));
 
         $response->assertStatus(200);
-        $response->assertSee('小説');
+        $response->assertSee('SF');
     }
 
     public function test_update_genre()
