@@ -197,8 +197,8 @@ class BookTest extends TestCase
         //データの有無の確認
         $this->assertNotEmpty($favoriteBooks, 'データ無');
         //$favoriteBooksがある時,お気に入りの本全てのタイトルがあるかの確認
-        foreach ($favoriteBooks as $book) {
-            $response->assertSee($book->title);
+        foreach ($favoriteBooks as $favBook) {
+            $response->assertSee($fevBook->title);
         }
     }
 
@@ -224,33 +224,8 @@ class BookTest extends TestCase
 
     public function test_favorite_toggle_book()
     {
-        $userId = \DB::table('users')->insertGetId([
-            'name' => 'Test User',
-            'email' => 'test_' . uniqid() . '@example.com',
-            'password' => Hash::make('password'),
-            'created_at' => now(),
-            'updated_at' => now(),
-        ]);
-        $user = User::find($userId);
-
-        $bookId = \DB::table('books')->insertGetId([
-            'user_id' => $user->id,
-            'title' => 'test Book',
-            'author' => 'Test Author',
-            'isbn' => '978' . rand(1000000000, 9999999999),
-            'published_date' => '2000-01-01',
-            'description' => 'This is a test book description.',
-            'image_url' => 'https://example.com',
-            'created_at' => now(),
-            'updated_at' => now(),
-        ]);
-
-        \DB::table('book_genre')->insert([
-            ['book_id' => $bookId, 'genre_id' => 1],
-            ['book_id' => $bookId, 'genre_id' => 7],
-        ]);
-
-        $book = Book::find($bookId);
+        $user = User::factory()->create();
+        $book = Book::factory()->create();
 
         $response = $this->actingAs($user)->post("/books/{$book->id}/favorites");
 
