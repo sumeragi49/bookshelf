@@ -96,16 +96,34 @@ class GenreTest extends TestCase
             'name' => '新しいジャンル'
         ]);
     }
-
+    //ジャンルの削除機能のテスト
     public function test_delete_genre()
     {
-        $user = User::find(1);
-
-        $genre = Genre::find(1);
+        $user = User::factory()->create();
+        $genre = Genre::factory()->create();
 
         $response = $this->actingAs($user)->delete(route('genres.destroy', $genre->id));
 
         $response->assertStatus(302);
-        $this->assertModelMissing($genre);
+        $this->assertDatabaseMissing('genres', [
+            'id' => $genre->id
+        ]);
+    }
+
+    public function test_cannot_delete_genre_when_books_are_attached()
+    {
+        $user = User::factory()->create();
+        $genre = Genre::factory()->create();
+        $book = Book::factory()->create();
+
+        $genre->books()->attach($book->id);
+
+        $response = $this->actingAs($user)->delete(route('genres.destroy', $genre->id));
+
+        $response->assertStatus(302);
+        $this->assertDatabaseHas('genres', [
+            'id' => $genre->id,
+        ]);
+        $response->assertSessionHas('error', 'このジャンルには書籍が紐づているため削除できません。');
     }
 }
