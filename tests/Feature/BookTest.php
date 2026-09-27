@@ -252,6 +252,29 @@ class BookTest extends TestCase
             'book_id' => $book->id,
         ]);
     }
+    //いいね機能(登録->解除)のテスト
+    public function test_user_can_favorite_toggle_a_book()
+    {
+        $user = User::factory()->create();
+        $book = Book::factory()->create();
+
+        $response = $this->actingAs($user)->post(route("favorites.toggle", $book->id));
+
+        $response->assertStatus(302);
+
+        $this->assertDatabaseHas('favorites', [
+            'user_id' => $user->id,
+            'book_id' => $book->id,
+        ]);
+
+        $response = $this->actingAs($user)->post(route("favorites.toggle", $book->id));
+
+        $response->assertStatus(302);
+        $this->assertDatabaseMissing('favorites', [
+            'user_id' => $user->id,
+            'book_id' => $book->id,
+        ]);
+    }
 
     //応用機能のテスト
     public function test_index_search_keyword_book()
