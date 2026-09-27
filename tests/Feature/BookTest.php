@@ -181,24 +181,27 @@ class BookTest extends TestCase
         $response->assertStatus(302);
         $this->assertModelMissing($book);
     }
-
+    //いいねした書籍の一覧ページの表示
     public function test_favorite_book()
     {
-        $user = User::find(1);
+        $user = User::factory()->create();
+        $books = Book::factory()->count(15)->create();
+
+        $user->favoriteBooks()->attach($books->pluck('id')->toArray());
 
         $favoriteBooks = $user->favoriteBooks()
                       -> latest()
                       -> take(10)
                       -> get();
 
-        $response = $this->actingAs($user)->get('/favorite');
+        $response = $this->actingAs($user)->get(route("favorites.index"));
 
         $response->assertStatus(200);
         //データの有無の確認
         $this->assertNotEmpty($favoriteBooks, 'データ無');
         //$favoriteBooksがある時,お気に入りの本全てのタイトルがあるかの確認
         foreach ($favoriteBooks as $favBook) {
-            $response->assertSee($fevBook->title);
+            $response->assertSee($favBook->title);
         }
     }
 
