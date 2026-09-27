@@ -221,14 +221,13 @@ class BookTest extends TestCase
         //指定したarrayが順番も指定どうりかまで検証するメソッド
         $response->assertSeeInOrder($rankingBooks);
     }
-    //いいねの登録と解除のテスト
-    public function test_favorite_toggle_book()
+    //いいねの登録のテスト
+    public function test_user_can_favorite_a_book()
     {
-        //いいね登録時のtest
         $user = User::factory()->create();
         $book = Book::factory()->create();
 
-        $response = $this->actingAs($user)->post("/books/{$book->id}/favorites");
+        $response = $this->actingAs($user)->post(route("favorites.toggle", $book->id));
 
         $response->assertStatus(302);
 
@@ -236,10 +235,18 @@ class BookTest extends TestCase
             'user_id' => $user->id,
             'book_id' => $book->id,
         ]);
-        //いいね解除時のテスト
-        $response2 = $this->actingAs($user)->post(route("favorites.toggle", $book->id));
+    }
+    //いいね解除のテスト
+    public function test_user_can_unfavorite_a_book()
+    {
+        $user = User::factory()->create();
+        $book = Book::factory()->create();
 
-        $response2->assertStatus(302);
+        $user->favoriteBooks()->attach($book->id);
+
+        $response = $this->actingAs($user)->post(route("favorites.toggle", $book->id));
+
+        $response->assertStatus(302);
         $this->assertDatabaseMissing('favorites', [
             'user_id' => $user->id,
             'book_id' => $book->id,
