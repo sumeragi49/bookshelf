@@ -182,7 +182,7 @@ class BookTest extends TestCase
         $this->assertModelMissing($book);
     }
     //いいねした書籍の一覧ページの表示
-    public function test_favorite_book()
+    public function test_user_favorite_book()
     {
         $user = User::factory()->create();
         $books = Book::factory()->count(15)->create();
@@ -203,6 +203,16 @@ class BookTest extends TestCase
         foreach ($favoriteBooks as $favBook) {
             $response->assertSee($favBook->title);
         }
+    }
+    //guestのいいねした書籍一覧画面への表示不可
+    public function test_guest_favorite_book_login_redirect()
+    {
+        $book = Book::factory()->create();
+
+        $response = $this->get(route('favorites.index'));
+
+        $response->assertStatus(302);
+        $response->assertRedirect(route('login'));
     }
 
     public function test_ranking_book()
