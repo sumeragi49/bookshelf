@@ -157,4 +157,45 @@ class ReviewTest extends TestCase
             'review_id' => $review->id,
         ]);
     }
+    //いいねの解除機能
+    public function test_user_cannot_like_a_book()
+    {
+        $review = Review::factory()->create();
+        $user = User::factory()->create();
+
+        $user->likedReviews()->attach($review->id);
+
+        $response = $this->actingAs($user)->post(route('reviews.like', $review->id));
+
+        $response->assertStatus(302);
+
+        $this->assertDatabaseMissing('likes', [
+            'user_id' => $user->id,
+            'review_id' => $review->id,
+        ]);
+    }
+    //いいね機能(toggle)(登録->解除)の検証
+    public function test_user_can_like_toggle_a_book()
+    {
+        $review = Review::factory()->create();
+        $user = User::factory()->create();
+
+        $response = $this->actingAs($user)->post(route('reviews.like', $review->id));
+
+        $response->assertStatus(302);
+
+        $this->assertDatabaseHas('likes', [
+            'user_id' => $user->id,
+            'review_id' => $review->id,
+        ]);
+
+        $response = $this->post(route('reviews.like', $review->id));
+
+        $response->assertStatus(302);
+
+        $this->assertDatabaseMissing('likes', [
+            'user_id' => $user->id,
+            'review_id' => $review->id,
+        ]);
+    }
 }
