@@ -198,4 +198,14 @@ class ReviewTest extends TestCase
             'review_id' => $review->id,
         ]);
     }
+    //いいね機能のguest状態でのいいね
+    public function test_guest_liked_review_login_redirect()
+    {
+        $review = Review::factory()->create();
+
+        $response = $this->post(route('reviews.like', $review->id));
+
+        $response->assertStatus(302);
+        $response->assertRedirect(route('login'));
+    }
 }
