@@ -142,31 +142,11 @@ class ReviewTest extends TestCase
             'id' => $review->id,
         ]);
     }
-
-    public function test_like_toggle_book()
+    //いいねの追加機能
+    public function test_user_can_like_a_book()
     {
-        $userId = \DB::table('users')->insertGetId([
-            'name' => 'Test User',
-            'email' => 'test_' . uniqid() . '@example.com',
-            'password' => Hash::make('password'),
-            'created_at' => now(),
-            'updated_at' => now(),
-        ]);
-
-        $user = User::find($userId);
-
-        $book = Book::find(1);
-
-        $reviewId = \DB::table('reviews')->insertGetId([
-            'user_id' => $user->id,
-            'book_id' => $book->id,
-            'rating' => '5',
-            'comment' => '面白く、とても参考になる作品だと感じました。',
-            'created_at' => now(),
-            'updated_at' => now(),
-        ]);
-
-        $review = Review::find($reviewId);
+        $review = Review::factory()->create();
+        $user = User::factory()->create();
 
         $response = $this->actingAs($user)->post(route('reviews.like', $review->id));
 
