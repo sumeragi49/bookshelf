@@ -36,6 +36,14 @@ class NotificationTest extends TestCase
                  ->assertSee('「吾輩は猫である」に関するお知らせ');
     }
 
+    public function test_guest_cannot_index_notification()
+    {
+        $response = $this->get(route('notifications.index'));
+
+        $response->assertStatus(302);
+        $response->assertRedirect(route('login'));
+    }
+
     public function test_store_notification()
     {
         $user = User::find(1);
