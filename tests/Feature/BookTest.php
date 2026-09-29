@@ -81,6 +81,14 @@ class BookTest extends TestCase
                  ->assertSee('画像URL')
                  ->assertSee('ジャンル');
     }
+    //guestによる書籍作成画面,redirect
+    public function test_guest_cannot_create_book_redirect()
+    {
+        $response = $this->get(route('books.create'));
+
+        $response->assertStatus(302);
+        $response->assertRedirect(route('login'));
+    }
 
     public function test_store_book()
     {

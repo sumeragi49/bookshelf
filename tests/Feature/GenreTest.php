@@ -117,7 +117,7 @@ class GenreTest extends TestCase
             'id' => $genre->id
         ]);
     }
-
+    //削除対象のジャンルに書籍が紐づいている場合,削除不可
     public function test_cannot_delete_genre_when_books_are_attached()
     {
         $user = User::factory()->create();
