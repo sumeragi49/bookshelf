@@ -56,7 +56,7 @@ class BookRequest extends FormRequest
             'isbn.unique' => '入力されたISBNは重複したものが存在します。',
             'published_date.required' => '出版日を指定くしてください。',
             'published_date.date' => '出版日を有効な日付で入力してください。',
-            'description.string' => '説明は文字列で入力してください。'
+            'description.string' => '説明は文字列で入力してください。',
             'genres.required' => 'ジャンルを一つ以上選択してください。',
             'image_url.url' => '画像はURL形式で入力してください。',
         ];

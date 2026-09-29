@@ -7,6 +7,7 @@ use Illuminate\Foundation\Testing\WithFaker;
 use Tests\TestCase;
 use App\Models\User;
 use App\Models\Book;
+use App\Models\Genre;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Http;
 
@@ -92,7 +93,7 @@ class BookTest extends TestCase
 
     public function test_store_book()
     {
-        $user = User::find(1);
+        $user = User::factory()->create();
 
         $book = [
             'user_id' => $user->id,
@@ -102,10 +103,12 @@ class BookTest extends TestCase
             'published_date' => '1871-01-01',
             'description' => '因果応報、報いを！',
             'image_url' => 'https://placehold.co',
-            'genres' => [1,6],
+            'genres' => [1, 6],
         ];
 
-        $response = $this->actingAs($user)->post('/books', $book);
+        $this->withoutExceptionHandling();
+
+        $response = $this->actingAs($user)->post(route('books.store', $book));
 
         $response->assertStatus(302);
 
