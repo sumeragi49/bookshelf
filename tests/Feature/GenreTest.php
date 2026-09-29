@@ -41,6 +41,14 @@ class GenreTest extends TestCase
         $response->assertStatus(200);
         $response->assertSee('ジャンル名');
     }
+    //guestでのジャンル一覧画面表示操作のredirect
+    public function test_guest_cannot_create_genre()
+    {
+        $response = $this->get(route('genres.create'));
+
+        $response->assertStatus(302);
+        $response->assertRedirect(route('login'));
+    }
     // ジャンル登録のテスト
     public function test_store_genre()
     {
