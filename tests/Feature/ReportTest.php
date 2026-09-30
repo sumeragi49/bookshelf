@@ -24,8 +24,7 @@ class ReportTest extends TestCase
         
         $response->assertStatus(200);
     }
-
-    /*
+    //guestによるレポートページへのアクセス不可
     public function test_guest_cannot_access_report_index()
     {
         $response = $this->get(route('reports.index'));
@@ -33,5 +32,4 @@ class ReportTest extends TestCase
         $response->assertStatus(302);
         $response->assertRedirect(route('login'));
     }
-    */
 }
