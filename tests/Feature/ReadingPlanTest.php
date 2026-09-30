@@ -29,6 +29,14 @@ class ReadingPlanTest extends TestCase
                  ->assertSee('読了');
     }
 
+    public function test_guest_cannot_access_index_reading_plan()
+    {
+        $response = $this->get(route('reading-plans.index'));
+
+        $response->assertStatus(302);
+        $response->assertRedirect(route('login'));
+    }
+
     public function test_create_reading_plan()
     {
         $user = User::find(1);
