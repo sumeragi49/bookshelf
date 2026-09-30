@@ -24,7 +24,7 @@ class ReportTest extends TestCase
         
         $response->assertStatus(200);
     }
-    //guestによるレポートページへのアクセス不可
+    //guestによるレポートページへのアクセス不可の検証
     public function test_guest_cannot_access_report_index()
     {
         $response = $this->get(route('reports.index'));
