@@ -19,16 +19,23 @@ class BookTest extends TestCase
 
     protected $seed = true;
 
-    public function test_api_index_book()
+    public function test_user_can_api_index_book()
     {
-        $user = User::find(1);
-
+        //login用のユーザーデータの作成
+        $user = User::factory()->create();
+        //Apiへのリクエスト
         $response = $this->actingAs($user)->getJson('/api/v1/books');
 
+        //レスポンスの検証
         $response->assertStatus(200);
-        $response->assertJsonCount(10, 'data');
+
+        //データ件数の確認
+        $response->assertJsonCount(11, 'data');
+
+        //Json構造の確認
         $response->assertJsonStructure([
             'data' => [
+                //複数の配列のため'*'が必要
                 '*' => [
                     'id',
                     'user_id',
@@ -44,6 +51,17 @@ class BookTest extends TestCase
                 ]
             ]
         ]);
+    }
+
+    public function test_user_cannot_api_index_book()
+    {
+         //login用のユーザーデータの作成
+        $user = User::factory()->create();
+
+        //接続先URLが誤っている場合
+        $response = $this->actingAs($user)->getJson('/api/v2/books');
+
+        $response->assertStatus(404);
     }
 
     public function test_api_show_book()

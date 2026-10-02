@@ -26,16 +26,22 @@ class BookController extends Controller
 
         $validated = $request->validated();
 
-        $books = Book::with('user', 'genres', 'reviews')
-              -> withAvg('reviews', 'rating')
-              -> withCount('reviews')
-              -> genreFilter($validated['genre_id'] ?? null)
-              -> keywordSearch($validated['keyword'] ?? null)
-              -> paginate($validated['per_page']);
+        try{
+            $books = Book::with('user', 'genres', 'reviews')
+                  -> withAvg('reviews', 'rating')
+                  -> withCount('reviews')
+                  -> genreFilter($validated['genre_id'] ?? null)
+                  -> keywordSearch($validated['keyword'] ?? null)
+                  -> paginate($validated['per_page']);
 
-        return (new BookCollection($books))
-               ->response()
-               ->setStatusCode(200);
+            return (new BookCollection($books))
+                   ->response()
+                   ->setStatusCode(200);
+        } catch (ModelNotFoundException $e){
+            return response()->json([
+                'error' => '書籍が見つかりませんでした。'
+            ], 404, [], JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT);
+        }
     }
     //BookResource,GenreResource,ReviewResource使用
     public function show($bookId): JsonResponse
