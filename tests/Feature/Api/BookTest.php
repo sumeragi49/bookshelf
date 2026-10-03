@@ -64,22 +64,19 @@ class BookTest extends TestCase
         $response->assertStatus(404);
     }
 
-    public function test_api_show_book()
+    public function test_user_can_api_show_book()
     {
-        $user = User::find(1);
+        $user = User::factory()->create();
+        $book = Book::factory()->create(['user_id' => $user->id]);
+        $reviews = Review::factory()->count(5)->create(['book_id' =>  $book->id]);
 
-        $book = Book::find(1);
-
-        $reviews = Review::where('book_id', $book->id)
-                -> get();
-
-        $response = $this->actingAs($user)->getJson('/api/v1/books/1');
+        $response = $this->actingAs($user)->getJson("/api/v1/books/{$book->id}");
 
         $response->assertStatus(200);
 
-        $response->assertJsonPath('book.title', '吾輩は猫である');
-        $response->assertJsonPath('book.author', '夏目漱石');
-        $response->assertJsonPath('book.published_date', '1905-01-01 00:00:00');
+        $response->assertJsonPath('book.title', $book->title);
+        $response->assertJsonPath('book.author', $book->author);
+        $response->assertJsonPath('book.published_date', $book->published_date->format('Y-m-d H:i:s'));
 
         $response->assertJsonStructure([
             'book' => [
