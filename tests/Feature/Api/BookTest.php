@@ -116,7 +116,7 @@ class BookTest extends TestCase
 
     public function test_api_store_book()
     {
-        $user = User::find(1);
+        $user = User::factory()->create();
 
         $book = [
             'user_id' => $user->id,
@@ -135,11 +135,8 @@ class BookTest extends TestCase
 
         $response->assertStatus(201);
 
-        $storeBook = Book::latest('id')
-                  -> first();
-
         $this->assertDatabaseHas('books', [
-            'user_id' => 1,
+            'user_id' => $user->id,
             'title' => '罪と罰',
             'author' => '北垣信之(訳)',
             'isbn' => '9784061330122',
