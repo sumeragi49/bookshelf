@@ -101,6 +101,19 @@ class BookTest extends TestCase
         ]);
     }
 
+    public function test_user_cannot_api_show_book()
+    {
+         //login用のユーザーデータの作成
+        $user = User::factory()->create();
+        $book = Book::factory()->create(['user_id' => $user->id]);
+        $reviews = Review::factory()->count(5)->create(['book_id' =>  $book->id]);
+
+        //接続先URLが誤っている場合
+        $response = $this->actingAs($user)->getJson("/api/v2/books/{$book->id}");
+
+        $response->assertStatus(404);
+    }
+
     public function test_api_store_book()
     {
         $user = User::find(1);
