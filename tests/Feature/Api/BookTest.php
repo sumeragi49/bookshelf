@@ -135,6 +135,9 @@ class BookTest extends TestCase
 
         $response->assertStatus(201);
 
+        $storeBook = Book::latest('id')
+                  -> first();
+
         $this->assertDatabaseHas('books', [
             'user_id' => $user->id,
             'title' => '罪と罰',
@@ -151,6 +154,30 @@ class BookTest extends TestCase
         $this->assertDatabaseHas('book_genre', [
             'book_id' => $storeBook->id,
             'genre_id' => 6,
+        ]);
+    }
+
+    public function test_user_cannot_api_store_book()
+    {
+        $user = User::factory()->create();
+
+        $book = [
+            'user_id' => $user->id,
+            'title' => '罪と罰',
+            'author' => '北垣信之(訳)',
+            'isbn' => '978406133012200',
+            'published_date' => '1871-01-01',
+            'description' => '因果応報、報いを！',
+            'image_url' => 'https://placehold.co',
+            'genres' => array(1, 6),
+        ];
+
+        Sanctum::actingAs($user);
+        $response = $this->postJson('/api/v1/books', $book);
+
+        $response->assertStatus(422);
+        $response->assertInvalid([
+            'isbn' => "ISBNは13桁で入力してください。"
         ]);
     }
 
