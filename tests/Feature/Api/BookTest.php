@@ -277,6 +277,30 @@ class BookTest extends TestCase
         ]);
     }
 
+    public function test_user_cannot_api_store_book_validate_published_date_required()
+    {
+        $user = User::factory()->create();
+
+        $book = [
+            'user_id' => $user->id,
+            'title' => '罪と罰',
+            'author' => '北垣信之(訳)',
+            'isbn' => '9784061330122',
+            'published_date' => '',
+            'description' => '因果応報、報いを！',
+            'image_url' => 'https://placehold.co',
+            'genres' => array(1, 6),
+        ];
+
+        Sanctum::actingAs($user);
+        $response = $this->postJson('/api/v1/books', $book);
+
+        $response->assertStatus(422);
+        $response->assertInvalid([
+            'published_date' => "出版日を指定くしてください。"
+        ]);
+    }
+
     public function test_api_update_book()
     {
         $user = User::find(1);
