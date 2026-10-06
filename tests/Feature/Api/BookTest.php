@@ -408,7 +408,7 @@ class BookTest extends TestCase
 
         $response->assertStatus(401);
     }
-
+    //書籍の削除検証
     public function test_user_can_api_delete_book()
     {
         $user = User::factory()->create();
@@ -421,5 +421,19 @@ class BookTest extends TestCase
         $response->assertStatus(204);
 
         $this->assertModelMissing($book);
+    }
+    //guestによる書籍削除不可機能
+    public function test_guest_cannot_api_delete_book()
+    {
+        $user = User::factory()->create();
+        $book = Book::factory()->create(['title' => "罪と罰"]);
+
+        $response = $this->deleteJson("/api/v1/books/{$book->id}");
+
+        $response->assertStatus(401);
+
+        $this->assertDatabaseHas('books', [
+            'title' => '罪と罰'
+        ]);
     }
 }
