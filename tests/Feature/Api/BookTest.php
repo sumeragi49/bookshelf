@@ -349,10 +349,9 @@ class BookTest extends TestCase
         ]);
     }
 
-    public function test_api_update_book()
+    public function test_user_can_api_update_book()
     {
         $user = User::find(1);
-
         $book = Book::find(1);
 
         $updateBook = ([
