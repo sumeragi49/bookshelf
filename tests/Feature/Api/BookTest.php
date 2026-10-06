@@ -385,6 +385,29 @@ class BookTest extends TestCase
             'genre_id' => 5,
         ]);
     }
+    //guestによる書籍更新時の401エラー
+    //認証->バリデーションのためバリデーションのエラーがあっても反応しない
+    public function test_guest_cannot_api_update_book()
+    {
+        $user = User::factory()->create();
+        $book = Book::factory()->create();
+
+        $updateBook = ([
+            'title' => '罪と罰',
+            'author' => '北垣信之(訳)',
+            'isbn' => '9784061330122',
+            'published_date' => '1871-01-01',
+            'description' => '因果応報、報いを！',
+            'image_url' => 'https://placehold.co',
+            'genres' => [1, 6],
+        ]);
+        //これがあるとゲスト状態にならない
+        //Sanctum::actingAs($user);
+
+        $response = $this->putJson("/api/v1/books/{$book->id}", $updateBook);
+
+        $response->assertStatus(401);
+    }
 
     public function test_api_delete_book()
     {
