@@ -411,15 +411,14 @@ class BookTest extends TestCase
 
     public function test_api_delete_book()
     {
-        $user = User::find(1);
-
-        $book = Book::find(1);
+        $user = User::factory()->create();
+        $book = Book::factory()->create(['user_id' => $user->id]);
 
         Sanctum::actingAs($user);
 
         $response = $this->deleteJson("/api/v1/books/{$book->id}");
 
-        $response->assertStatus(200);
+        $response->assertStatus(204);
 
         $this->assertModelMissing($book);
     }
