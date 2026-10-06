@@ -351,17 +351,17 @@ class BookTest extends TestCase
 
     public function test_user_can_api_update_book()
     {
-        $user = User::find(1);
-        $book = Book::find(1);
+        $user = User::factory()->create();
+        $book = Book::factory()->create(['user_id' => $user->id]);
 
         $updateBook = ([
-            'title' => '吾輩は猫である(訳)',
-            'author' => '夏目漱石',
-            'isbn' => '9784101010014',
-            'published_date' => '1905-01-01',
-            'description' => '名前が欲しい！',
-            'image_url' => 'https://placehold.co/200x300/e2e8f0/475569?text=1',
-            'genres' => [1,5],
+            'title' => '罪と罰',
+            'author' => '北垣信之(訳)',
+            'isbn' => '9784061330122',
+            'published_date' => '1871-01-01',
+            'description' => '因果応報、報いを！',
+            'image_url' => 'https://placehold.co',
+            'genres' => [1, 6],
         ]);
 
         Sanctum::actingAs($user);
@@ -374,7 +374,7 @@ class BookTest extends TestCase
                   -> first();
 
         $this->assertDatabaseHas('books', [
-            'title' => '吾輩は猫である(訳)',
+            'title' => "$storeBook->title",
         ]);
         $this->assertDatabaseHas('book_genre', [
             'book_id' => $storeBook->id,
@@ -382,7 +382,7 @@ class BookTest extends TestCase
         ]);
         $this->assertDatabaseHas('book_genre', [
             'book_id' => $storeBook->id,
-            'genre_id' => 5,
+            'genre_id' => 6,
         ]);
     }
     //guestによる書籍更新時の401エラー
@@ -409,7 +409,7 @@ class BookTest extends TestCase
         $response->assertStatus(401);
     }
 
-    public function test_api_delete_book()
+    public function test_user_can_api_delete_book()
     {
         $user = User::factory()->create();
         $book = Book::factory()->create(['user_id' => $user->id]);
