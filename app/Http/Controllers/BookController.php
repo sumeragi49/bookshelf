@@ -43,8 +43,13 @@ class BookController extends Controller
         return view('books.create', compact('genres'));
     }
 
-    public function isbnSearch(Request $request, $isbn)
+    public function isbnSearch(Request $request, $isbn = null)
     {
+
+        if (!$isbn) {
+            return response()->json(['error' => '無効なISBNコードです。'], 400);
+        }
+
         $simpleIsbn = str_replace(['-', ' '], '', $isbn);
 
         if (empty($simpleIsbn)) {

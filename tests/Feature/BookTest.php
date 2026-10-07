@@ -453,4 +453,18 @@ class BookTest extends TestCase
                 'genres' => '1, 6',
         ]);
     }
+
+    public function test_create_search_cannot_isbn_invalid_code_book()
+    {
+        $user = User::factory()->create();
+
+        Http::fake();
+        //「isbn-code」はつけないと404エラーになる可能性があるため
+        $response = $this->actingAs($user)->get("/books/isbn/- -");
+
+        $response->assertStatus(400);
+        $response->assertJson([
+            'error' => '無効なISBNコードです。'
+        ]);
+    }
 }

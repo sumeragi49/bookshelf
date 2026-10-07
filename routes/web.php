@@ -26,7 +26,7 @@ Route::middleware('auth')->group(function () {
 
     Route::get('/books/create',[BookController::class, 'create'])->name('books.create');
 
-    Route::get('/books/isbn/{isbn}', [BookController::class, 'isbnSearch']);
+    Route::get('/books/isbn/{isbn?}', [BookController::class, 'isbnSearch']);
 
     Route::post('/books', [BookController::class, 'store'])->name('books.store');
 
