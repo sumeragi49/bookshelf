@@ -8,6 +8,7 @@ use Tests\TestCase;
 use App\Models\User;
 use App\Models\Book;
 use App\Models\Genre;
+use Illuminate\Http\Client\ConnectionException;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Http;
 
@@ -422,7 +423,7 @@ class BookTest extends TestCase
 
     public function test_create_search_isbn_book()
     {
-        $user = User::find(1);
+        $user = User::factory()->create();
         //*は「ワイルドカード」(com.以下がなんでもそのurlとする。)
         Http::fake([
             'https://www.googleapis.com*' => Http::response([
@@ -459,12 +460,30 @@ class BookTest extends TestCase
         $user = User::factory()->create();
 
         Http::fake();
-        //「isbn-code」はつけないと404エラーになる可能性があるため
+        //「- -」はつけないと404エラーになる可能性があるため
         $response = $this->actingAs($user)->get("/books/isbn/- -");
 
         $response->assertStatus(400);
         $response->assertJson([
             'error' => '無効なISBNコードです。'
+        ]);
+    }
+
+    public function test_user_cannot_search_isbn_connection_error_book()
+    {
+        $user = User::factory()->create();
+
+        Http::fake([
+            'https://www.googleapis.com*' => function () {
+                throw new ConnectionException("サーバーへの接続に失敗しました。");
+            }
+        ]);
+
+        $response = $this->actingAs($user)->get("/books/isbn/9784061330122");
+
+        $response->assertStatus(500);
+        $response->assertJson([
+            'error' => 'APIサーバーへの接続に失敗しました。'
         ]);
     }
 }
