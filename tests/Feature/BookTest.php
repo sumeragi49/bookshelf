@@ -472,10 +472,10 @@ class BookTest extends TestCase
     public function test_user_cannot_search_isbn_connection_error_book()
     {
         $user = User::factory()->create();
-
+        //「throw new ConnectionException」はthrow newでエラーを意図的に起こすConnectionExceptionはLaravelが提供する例外クラス
         Http::fake([
             'https://www.googleapis.com*' => function () {
-                throw new ConnectionException("サーバーへの接続に失敗しました。");
+                throw new ConnectionException('サーバーへの接続に失敗しました。');
             }
         ]);
 
@@ -484,6 +484,22 @@ class BookTest extends TestCase
         $response->assertStatus(500);
         $response->assertJson([
             'error' => 'APIサーバーへの接続に失敗しました。'
+        ]);
+    }
+
+    public function test_user_cannot_search_isbn_too_many_request_book()
+    {
+        $user = User::factory()->create();
+
+        Http::fake([
+            'https://www.googleapis.com*' => Http::response(['message' => 'Too Many Request'], 429)
+        ]);
+
+        $response = $this->actingAs($user)->get("/books/isbn/9784061330122");
+
+        $response->assertStatus(429);
+        $response->assertJson([
+            'error' => 'リクエストが多すぎます。しばらく時間を置いてから再度お試しください。'
         ]);
     }
 }
