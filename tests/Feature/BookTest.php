@@ -502,4 +502,25 @@ class BookTest extends TestCase
             'error' => 'リクエストが多すぎます。しばらく時間を置いてから再度お試しください。'
         ]);
     }
+    //404エラーの検証はGoogle Booksに登録されていない番号にする必要がある
+    public function test_user_cannot_search_isbn_no_existed_request_book()
+    {
+        $user = User::factory()->create();
+        //fake以下は送信するデータを作成するのではなく,取得するデータを作成
+        Http::fake([
+            'https://www.googleapis.com*' => Http::response([
+                //itemがあるとisbnメソッド内の想定外のブロックに入る
+                //0件ヒットした返された状態
+                'kind' => 'books#volumes',
+                'totalItems' => 0
+            ], 200)
+        ]);
+
+        $response = $this->actingAs($user)->get("/books/isbn/9784061330122");
+
+        $response->assertStatus(404);
+        $response->assertJson([
+            'error' => '書籍が見つかりませんでした。'
+        ]);
+    }
 }
