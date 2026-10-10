@@ -45,13 +45,13 @@ class BookController extends Controller
 
     public function isbnSearch(Request $request, $isbn = null)
     {
-
+        //$isbnがない場合
         if (!$isbn) {
             return response()->json(['error' => '無効なISBNコードです。'], 400);
         }
 
         $simpleIsbn = str_replace(['-', ' '], '', $isbn);
-
+        //$isbnが空の場合
         if (empty($simpleIsbn)) {
             return response()->json(['error' => '無効なISBNコードです。'], 400);
         }
@@ -59,6 +59,7 @@ class BookController extends Controller
         $url = 'https://www.googleapis.com/books/v1/volumes?q=isbn:' . $simpleIsbn;
 
         $apiKey = env('GOOGLE_BOOKS_API_KEY');
+        //$apiKeyが空でなく通信エラーの場合
         if (!empty($apiKey)) {
             $url .= '&key=' . $apiKey;
         }
@@ -74,7 +75,7 @@ class BookController extends Controller
         } catch (\Exception $e) {
             return response()->json(['error' => 'APIサーバーへの接続に失敗しました。'], 500);
         }
-
+        //サーバー側からのresponseを受け取れなかった場合
         if ($response->failed()) {
             $statusCode = $response->status();
 
@@ -86,7 +87,7 @@ class BookController extends Controller
         }
 
         $bookData = $response->json();
-
+        //書籍のデータがなかった場合(一部)
         if (isset($bookData['items'][0]['volumeInfo'])) {
             $volumeInfo = $bookData['items'][0]['volumeInfo'];
 
