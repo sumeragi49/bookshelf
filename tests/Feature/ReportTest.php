@@ -18,7 +18,7 @@ class ReportTest extends TestCase
 
     public function test_report_index()
     {
-        $user = User::find(1);
+        $user = User::factory()->create();
 
         $response = $this->actingAs($user)->get(route('reports.index'));
         
