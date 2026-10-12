@@ -6,6 +6,10 @@ use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
 use Tests\TestCase;
 use App\Models\User;
+use App\Models\Book;
+use App\Models\genre;
+use App\Models\ReadingPlan;
+use Illuminate\Support\Facades\DB;
 
 class ReportTest extends TestCase
 {
@@ -31,5 +35,12 @@ class ReportTest extends TestCase
         
         $response->assertStatus(302);
         $response->assertRedirect(route('login'));
+    }
+
+    public function test_user_can_access_report_index_empty_data()
+    {
+        $user = User::factory()->create();
+
+
     }
 }
