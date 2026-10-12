@@ -6,7 +6,7 @@ use App\Models\Review;
 use App\Models\Book;
 use App\Models\User;
 use App\Models\ReadingPlan;
-use Carbon\Carbon
+use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**

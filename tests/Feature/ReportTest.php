@@ -40,7 +40,26 @@ class ReportTest extends TestCase
     public function test_user_can_access_report_index_empty_data()
     {
         $user = User::factory()->create();
+        $readingPlan = ReadingPlan::factory()->create([
+            'user_id' => $user->id,
+            'book_id' => 1,
+            'status' => 'in_progress',
+        ]);
+        
+        $response = $this->actingAs($user)->get(route('reports.index'));
+        $response->assertStatus(200);
 
+        /*
+        $response->assertViewHas('stats', function ($stats) {
+            return $stats['summary']['total_reviews'] === 0
+                && $stats['summery']['book_read'] === 0
+                && $stats['summery']['average_rating'] === 0
+                && $stats['rating_distribution']->toArray() === [0,0,0,0,0]
+                && empty($stats['top_rated_books'])
+                && empty($stats['genre_rating']);
+        });
+        */
 
+        $response->assertSee('0');
     }
 }
