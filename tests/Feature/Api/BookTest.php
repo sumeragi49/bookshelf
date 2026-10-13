@@ -115,6 +115,21 @@ class BookTest extends TestCase
 
         $response->assertStatus(404);
     }
+    //編集ページへの他のユーザーによる遷移不可(403)
+    public function test_other_user_cannot_api_show_book()
+    {
+         //login用のユーザーデータの作成
+        $user = User::factory()->create();
+        $otherUser = User::factory()->create();
+        $book = Book::factory()->create(['user_id' => $user->id]);
+        $reviews = Review::factory()->count(5)->create(['book_id' =>  $book->id]);
+
+        Sanctum::actingAs($otherUser);
+
+        $response = $this->getJson("/api/v1/books/{$book->id}");
+
+        $response->assertStatus(403);
+    }
 
     public function test_api_store_book()
     {
