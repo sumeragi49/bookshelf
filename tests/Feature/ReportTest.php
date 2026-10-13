@@ -66,18 +66,19 @@ class ReportTest extends TestCase
 
     public function test_user_can_report_index_correct_aggregated_stats()
     {
+        //user 二人分の作成
         $user = User::factory()->create();
         $otherUser = User::factory()->create();
-
+        //genreの作成
         $genre = Genre::factory()->create(['name' => '自叙伝']);
-
+        //書籍2冊分の作成
         $book1 = Book::factory()->hasAttached($genre)->create(['user_id' => $user->id, 'title' => '評価が5', 'author' => '著者A']);
         $book2 = Book::factory()->hasAttached($genre)->create(['user_id' => $user->id, 'title' => '評価が3', 'author' => '著者B']);
-
+        //review3つ分の作成
         $review1 = Review::factory()->create(['user_id' => $otherUser, 'book_id' => $book1->id, 'rating' => 5]);
         $review2 = Review::factory()->create(['user_id' => $otherUser,'book_id' => $book2->id, 'rating' => 3]);
         $review3 = Review::factory()->create(['user_id' => $user,'book_id' => $book1->id, 'rating' => 5]);
-
+        //読書計画3つ分の作成(一つは他のユーザーのデータ)
         ReadingPlan::factory()->create(['user_id' => $user->id, 'book_id' => $book1->id, 'status' => 'completed']);
         ReadingPlan::factory()->create(['user_id' => $user->id, 'book_id' => $book2->id, 'status' => 'completed']);
         ReadingPlan::factory()->create(['user_id' => $otherUser->id, 'book_id' => $book1->id,'status' => 'completed']);
@@ -85,13 +86,14 @@ class ReportTest extends TestCase
         $response = $this->actingAs($user)->get(route('reports.index'));
 
         $response->assertStatus(200);
-        
+        //上からそうレビュー数(total_review),読了数(book_read),平均評価(average_rating)
         $response->assertSee('2');
         $response->assertSee('2');
         $response->assertSee('4.0');
 
         $response->assertSee('評価が5');
         $response->assertSee('著者A');
+        //評価4以下は表示されないため「評価が3」は表示されない
         $response->assertDontSee('評価が3');
 
         $response->assertSee('自叙伝');
