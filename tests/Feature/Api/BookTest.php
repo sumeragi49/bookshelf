@@ -408,6 +408,29 @@ class BookTest extends TestCase
 
         $response->assertStatus(401);
     }
+    //otherUserによる書籍更新時の403エラー
+    public function test_other_user_cannot_api_update_book()
+    {
+        $user = User::factory()->create();
+        $otherUser = User::factory()->create();
+        $book = Book::factory()->create(['user_id' => $user->id]);
+
+        $updateBook = ([
+            'title' => '罪と罰',
+            'author' => '北垣信之(訳)',
+            'isbn' => '9784061330122',
+            'published_date' => '1871-01-01',
+            'description' => '因果応報、報いを！',
+            'image_url' => 'https://placehold.co',
+            'genres' => [1, 6],
+        ]);
+        //これがあるとゲスト状態にならない
+        Sanctum::actingAs($otherUser);
+
+        $response = $this->putJson("/api/v1/books/{$book->id}", $updateBook);
+
+        $response->assertStatus(403);
+    }
     //書籍の削除検証
     public function test_user_can_api_delete_book()
     {
