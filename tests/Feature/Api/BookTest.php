@@ -70,7 +70,9 @@ class BookTest extends TestCase
         $book = Book::factory()->create(['user_id' => $user->id]);
         $reviews = Review::factory()->count(5)->create(['book_id' =>  $book->id]);
 
-        $response = $this->actingAs($user)->getJson("/api/v1/books/{$book->id}");
+        Sanctum::actingAs($user);
+
+        $response = $this->getJson("/api/v1/books/{$book->id}");
 
         $response->assertStatus(200);
 

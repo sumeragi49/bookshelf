@@ -51,6 +51,8 @@ class BookController extends Controller
                   -> withAvg('reviews', 'rating')
                   -> withCount('reviews')
                   -> findOrFail($bookId);
+            //$bookを先に定義しなければならない
+            $this->authorize('edit', $book);
 
             $responseData = [
                 'book' => new BookResource($book),
