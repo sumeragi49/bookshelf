@@ -8,6 +8,7 @@ use Tests\TestCase;
 use App\Models\User;
 use App\Models\Book;
 use App\Models\ReadingPlan;
+use Carbon\Carbon;
 
 class ReadingPlanTest extends TestCase
 {
@@ -54,26 +55,33 @@ class ReadingPlanTest extends TestCase
 
     public function test_store_reading_plan()
     {
-        $user = User::find(1);
+        $this->withoutExceptionHandling(); 
 
-        $book = Book::find(4);
+        $user = User::factory()->create();
+        $book = Book::factory()->create();
+
+        $targetDate = now()->addMonth(1)->format('Y-m-d');
         
         $readingPlan = [
             'user_id' => $user->id,
             'book_id' => $book->id,
-            'target_date' => '2026-08-06 00:00:00',
-            'status' => 0
+            'target_date' => $targetDate,
         ];
 
         $response = $this->actingAs($user)->post(route('reading-plans.store'), $readingPlan);
 
+        //dd(session()->get('error')?->getBag('default')->getMessages());
+
         $response->assertStatus(302);
+
+        //dump(\DB::table('reading_plan')->get());
+
         $this->assertDatabaseHas('reading_plan', [
             'user_id' => $user->id,
             'book_id' => $book->id,
             //00:00:00まで入れないとエラーになる。
-            'target_date' => '2026-08-06 00:00:00',
-            'status' => '0',
+            'target_date' => now()->addMonth(1)->startOfDay()->toDateTimeString(),
+            'status' => 'in_progress',
         ]);
     }
 

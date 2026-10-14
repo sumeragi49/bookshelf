@@ -39,25 +39,22 @@ class ReadingPlanRequest extends FormRequest
         $planRules = ['required','integer'];
 
         if ($this->isMethod('post')) {
-            $planRules[] = Rule::exists('reading_plan', 'id');
+            //booksに選択したしょせきのIdがあるかチェック？
+            $planRules[] = Rule::exists('books', 'id');
+            //同一ユーザー・同一書籍での重複登録を防ぐ unique 制約を追加
+            $planRules[] = Rule::unique('reading_plan')->where(function (Builder $query) {
+                return $query 
+                    -> where('user_id', auth()->id())
+                    -> where('book_id', $this->book_id)
+                    -> where('status', 'in_progress');
+            });
+        //更新時にuniqueを回避するため
         } else {
-            $planRules[] = Rule::exists('reading_plan', 'id')->ignore($planId);
+            $planRules[] = Rule::exists('books', 'id')->ignore($planId);
         }
-
-        $uniqueRule = Rule::unique('reading_plan')->where(function (Builder $query) {
-            return $query 
-                -> where('user_id', auth()->id())
-                -> where('book_id', $this->book_id)
-                -> where('status', 'in_progress');
-        });
-
-        $planRules[] = $uniqueRule;
-
          return [
             'book_id' => $planRules,
             'target_date' => ['required', 'date', 'after_or_equal:today'],
-            'genres' => ['required', 'array'],
-            'image_url' => ['nullable', 'url'],
         ];
     }
 
