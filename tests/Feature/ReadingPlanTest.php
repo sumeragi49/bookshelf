@@ -42,7 +42,7 @@ class ReadingPlanTest extends TestCase
 
     public function test_create_reading_plan()
     {
-        $user = User::find(1);
+        $user = User::factory()->create();
 
         $response = $this->actingAs($user)->get(route('reading-plans.create'));
 
