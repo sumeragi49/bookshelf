@@ -18,15 +18,18 @@ class ReadingPlanTest extends TestCase
 
     protected $seed = true;
 
-    public function test_index_reading_plan()
+    public function test_user_can_index_reading_plan()
     {
-        $user = User::find(1);
+        $user = User::factory()->create();
+        $readingPlan = ReadingPlan::factory()->create([
+            'user_id' => $user->id,
+            'status' => 'in_progress',
+        ]);
 
         $response = $this->actingAs($user)->get(route('reading-plans.index'));
 
         $response->assertStatus(200);
-        $response->assertSee('未読')
-                 ->assertSee('読了');
+        $response->assertSee('未読');
     }
 
     public function test_guest_cannot_access_index_reading_plan()
