@@ -87,17 +87,24 @@ class ReadingPlanTest extends TestCase
 
     public function test_edit_reading_plan()
     {
-        $user = User::find(1);
-
-        $readingPlan = ReadingPlan::find(1);
+        $user = User::factory()->create();
+        $book = Book::factory()->create([
+            'title' => '罪と罰'
+        ]);
+        $targetDate = now()->addMonth(1)->format('Y-m-d');
+        $readingPlan = ReadingPlan::factory()->create([
+            'user_id' => $user->id,
+            'target_date' => $targetDate,
+            'status' => 'in_progress',
+        ]);
 
         $response = $this->actingAs($user)->get(route('reading-plans.edit', $readingPlan->id));
 
         $response->assertStatus(200);
         $response->assertSee('読書計画編集')
-                 ->assertSee('吾輩は猫である')
+                 ->assertSee($readingPlan->title)
                  ->assertSee('未読')
-                 ->assertSee('2026-08-03');
+                 ->assertSee($targetDate);
     }
 
     public function test_complete_reading_plan()
