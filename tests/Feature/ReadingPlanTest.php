@@ -85,7 +85,7 @@ class ReadingPlanTest extends TestCase
         ]);
     }
 
-    public function test_edit_reading_plan()
+    public function test_user_can_edit_reading_plan()
     {
         $user = User::factory()->create();
         $book = Book::factory()->create([
@@ -105,6 +105,25 @@ class ReadingPlanTest extends TestCase
                  ->assertSee($readingPlan->title)
                  ->assertSee('未読')
                  ->assertSee($targetDate);
+    }
+
+    public function test_other_user_cannot_edit_reading_plan()
+    {
+        $user = User::factory()->create();
+        $otherUser = User::factory()->create();
+        $book = Book::factory()->create([
+            'title' => '罪と罰'
+        ]);
+        $targetDate = now()->addMonth(1)->format('Y-m-d');
+        $readingPlan = ReadingPlan::factory()->create([
+            'user_id' => $user->id,
+            'target_date' => $targetDate,
+            'status' => 'in_progress',
+        ]);
+
+        $response = $this->actingAs($otherUser)->get(route('reading-plans.edit', $readingPlan->id));
+
+        $response->assertStatus(403);
     }
 
     public function test_complete_reading_plan()
