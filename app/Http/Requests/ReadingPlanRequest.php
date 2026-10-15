@@ -50,7 +50,7 @@ class ReadingPlanRequest extends FormRequest
             });
         //更新時にuniqueを回避するため
         } else {
-            $planRules[] = Rule::exists('books', 'id')->ignore($planId);
+            $planRules[] = Rule::unique('reading_plan', 'id')->ignore($planId);
         }
          return [
             'book_id' => $planRules,

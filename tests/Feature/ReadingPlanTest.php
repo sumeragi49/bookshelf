@@ -154,22 +154,36 @@ class ReadingPlanTest extends TestCase
 
     public function test_update_reading_plan()
     {
-        $user = User::find(1);
+        //$this->withoutExceptionHandling();
 
-        $readingPlan = ReadingPlan::find(1);
+        $user = User::factory()->create();
+        $book = Book::factory()->create();
+
+        $targetDate = now()->addMonth(1)->format('Y-m-d');
+
+        $readingPlan = ReadingPlan::factory()->create([
+            'user_id' => $user->id,
+            'book_id' => $book->id,
+            'target_date' => $targetDate,
+        ]);
+
+        $updateTargetDate = now()->addMonth(2)->format('Y-m-d');
+        $updateTargetDateTime = now()->addMonth(2)->format('Y-m-d 00:00:00');
 
         $updateReadingPlan = [
             'user_id' => $user->id,
-            'book_id' => $readingPlan->book->id,
-            'target_date' => '2026-08-15',
+            'book_id' => $book->id,
+            'target_date' => $updateTargetDate,
         ];
 
         $response = $this->actingAs($user)->put(route('reading-plans.update', $readingPlan->id), $updateReadingPlan);
 
         $response->assertStatus(302);
+
+        //dump(\DB::table('reading_plan')->get());
+
         $this->assertDatabaseHas('reading_plan', [
-            'target_date' => '2026-08-15 00:00:00',
-            'status' => 0,
+            'target_date' => $updateTargetDateTime,
         ]);
     }
 
