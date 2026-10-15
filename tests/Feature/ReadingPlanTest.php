@@ -152,7 +152,7 @@ class ReadingPlanTest extends TestCase
         ]);
     }
 
-    public function test_update_reading_plan()
+    public function test_user_can_update_reading_plan()
     {
         //$this->withoutExceptionHandling();
 
@@ -183,6 +183,42 @@ class ReadingPlanTest extends TestCase
         //dump(\DB::table('reading_plan')->get());
 
         $this->assertDatabaseHas('reading_plan', [
+            'target_date' => $updateTargetDateTime,
+        ]);
+    }
+
+    public function test_other_user_cannot_update_reading_plan()
+    {
+        //$this->withoutExceptionHandling();
+
+        $user = User::factory()->create();
+        $otherUser = User::factory()->create();
+        $book = Book::factory()->create();
+
+        $targetDate = now()->addMonth(1)->format('Y-m-d');
+
+        $readingPlan = ReadingPlan::factory()->create([
+            'user_id' => $user->id,
+            'book_id' => $book->id,
+            'target_date' => $targetDate,
+        ]);
+
+        $updateTargetDate = now()->addMonth(2)->format('Y-m-d');
+        $updateTargetDateTime = now()->addMonth(2)->format('Y-m-d 00:00:00');
+
+        $updateReadingPlan = [
+            'user_id' => $user->id,
+            'book_id' => $book->id,
+            'target_date' => $updateTargetDate,
+        ];
+
+        $response = $this->actingAs($otherUser)->put(route('reading-plans.update', $readingPlan->id), $updateReadingPlan);
+
+        $response->assertStatus(403);
+
+        //dump(\DB::table('reading_plan')->get());
+
+        $this->assertDatabaseMissing('reading_plan', [
             'target_date' => $updateTargetDateTime,
         ]);
     }
