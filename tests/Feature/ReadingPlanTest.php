@@ -128,15 +128,20 @@ class ReadingPlanTest extends TestCase
 
     public function test_complete_reading_plan()
     {
-        $this->freezeTime();
-        $nowStr = now()->format('Y-m-d H:i:s');
+        $targetDateTime = now()->addMonth(1)->format('Y-m-d 00:00:00');
+        $targetDate = now()->addMonth(1)->format('Y-m-d');
 
-        $readingPlan = ReadingPlan::with('user')
-                    -> find(1);
+        $user = User::factory()->create();
+        $book = Book::factory()->create();
+        $readingPlan = ReadingPlan::factory()->create([
+            'user_id' => $user->id,
+            'book_id' => $book->id,
+            'target_date' => $targetDate,
+        ]);
 
         $completeStatus = [
-            'completed_at' => $nowStr,
-            'status' => 2
+            'completed_at' => now(),
+            'status' => 'completed'
         ];
 
         $response = $this->actingAs($readingPlan->user)->post(route('reading-plans.complete', $readingPlan->id), $completeStatus);
@@ -144,11 +149,11 @@ class ReadingPlanTest extends TestCase
         $response->assertStatus(302);
 
         $this->assertDatabaseHas('reading_plan', [
-            'user_id' => 1,
-            'book_id' => 1,
-            'target_date' => '2026-08-03',
-            'completed_at' => $nowStr,
-            'status' => 2,
+            'user_id' => $user->id,
+            'book_id' => $book->id,
+            'target_date' => $targetDateTime,
+            'completed_at' => now(),
+            'status' => 'completed',
         ]);
     }
 
