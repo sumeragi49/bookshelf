@@ -126,7 +126,7 @@ class ReadingPlanTest extends TestCase
         $response->assertStatus(403);
     }
 
-    public function test_complete_reading_plan()
+    public function test_user_can_complete_reading_plan()
     {
         $targetDateTime = now()->addMonth(1)->format('Y-m-d 00:00:00');
         $targetDate = now()->addMonth(1)->format('Y-m-d');
@@ -149,6 +149,38 @@ class ReadingPlanTest extends TestCase
         $response->assertStatus(302);
 
         $this->assertDatabaseHas('reading_plan', [
+            'user_id' => $user->id,
+            'book_id' => $book->id,
+            'target_date' => $targetDateTime,
+            'completed_at' => now(),
+            'status' => 'completed',
+        ]);
+    }
+
+    public function test_other_user_cannot_complete_reading_plan()
+    {
+        $targetDateTime = now()->addMonth(1)->format('Y-m-d 00:00:00');
+        $targetDate = now()->addMonth(1)->format('Y-m-d');
+
+        $user = User::factory()->create();
+        $otherUser = User::factory()->create();
+        $book = Book::factory()->create();
+        $readingPlan = ReadingPlan::factory()->create([
+            'user_id' => $user->id,
+            'book_id' => $book->id,
+            'target_date' => $targetDate,
+        ]);
+
+        $completeStatus = [
+            'completed_at' => now(),
+            'status' => 'completed'
+        ];
+
+        $response = $this->actingAs($otherUser)->post(route('reading-plans.complete', $readingPlan->id), $completeStatus);
+
+        $response->assertStatus(403);
+
+        $this->assertDatabaseMissing('reading_plan', [
             'user_id' => $user->id,
             'book_id' => $book->id,
             'target_date' => $targetDateTime,

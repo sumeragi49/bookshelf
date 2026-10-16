@@ -68,12 +68,14 @@ class ReadingPlanController extends Controller
     {
         $readingPlan = readingPlan::findOrFail($planId);
 
+        $this->authorize('complete', $readingPlan);
+
         $readingPlan->update([
             'completed_at' => now(),
             'status' => 'completed',
         ]);
 
-        $this->authorize('complete', $readingPlan);
+        //$this->authorize('complete', $readingPlan);
 
         return redirect()->route('reading-plans.index');
     }
