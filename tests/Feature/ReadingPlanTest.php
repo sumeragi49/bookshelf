@@ -235,4 +235,21 @@ class ReadingPlanTest extends TestCase
         $response->assertStatus(302);
         $this->assertModelMissing($readingPlan);
     }
+
+    public function test_other_user_cannot_delete_reading_plan()
+    {
+        $user = User::factory()->create();
+        $otherUser = User::factory()->create();
+        $readingPlan = ReadingPlan::factory()->create([
+            'user_id' => $user->id,
+        ]);
+
+        $response = $this->actingAs($otherUser)->delete(route('reading-plans.destroy', $readingPlan->id));
+
+        $response->assertStatus(403);
+
+        $this->assertDatabaseHas('reading_plan', [
+            'user_id' => $user->id,
+        ]);
+    }
 }
