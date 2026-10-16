@@ -223,11 +223,12 @@ class ReadingPlanTest extends TestCase
         ]);
     }
 
-    public function test_delete_reading_plan()
+    public function test_user_can_delete_reading_plan()
     {
-        $user = User::find(1);
-
-        $readingPlan = ReadingPlan::find(1);
+        $user = User::factory()->create();
+        $readingPlan = ReadingPlan::factory()->create([
+            'user_id' => $user->id,
+        ]);
 
         $response = $this->actingAs($user)->delete(route('reading-plans.destroy', $readingPlan));
 
