@@ -24,7 +24,7 @@ class NotificationTest extends TestCase
 
     protected $seed = true;
 
-    public function test_index_notification()
+    public function test_user_can_index_notification()
     {
         $user = User::factory()->create();
         $book = Book::factory()->create();
@@ -58,11 +58,22 @@ class NotificationTest extends TestCase
         $response->assertRedirect(route('login'));
     }
 
-    public function test_store_notification()
+    public function test_user_can_store_notification()
     {
-        $user = User::find(1);
-
-        $notification = InfoNotification::first();
+        $user = User::factory()->create();
+        $book = Book::factory()->create();
+        $readingPlan = ReadingPlan::factory()->create([
+            'user_id' => $user->id,
+            'book_id' => $book->id,
+        ]);
+        $notification = InfoNotification::factory()->create([
+            'notifiable_id' => $user->id,
+            'data' => json_encode([
+                'reading_plan_id' => $readingPlan->id,
+                'body' => $book->title . 'に関するお知らせ',
+                'title' => $book->title,
+            ], JSON_UNESCAPED_UNICODE)
+        ]);
 
         $readAt = now();
 
