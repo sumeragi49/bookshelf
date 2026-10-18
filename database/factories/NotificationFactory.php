@@ -2,7 +2,7 @@
 
 namespace Database\Factories;
 
-use App\Models\user;
+use App\Models\User;
 use App\Models\InfoNotification;
 use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Support\Str;
@@ -17,6 +17,9 @@ class NotificationFactory extends Factory
      *
      * @return array<string, mixed>
      */
+
+    protected $model = InfoNotification::class;
+
     public function definition(): array
     {
         $title = $this->faker->realText(15);

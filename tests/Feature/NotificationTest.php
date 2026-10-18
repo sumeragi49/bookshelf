@@ -10,6 +10,7 @@ use Illuminate\Console\Scheduling\Schedule;
 use Tests\TestCase;
 use App\Notifications\InformationNotification;
 use App\Models\User;
+use App\Models\Book;
 use App\Models\InfoNotification;
 use App\Models\ReadingPlan;
 use Carbon\Carbon;
@@ -26,14 +27,27 @@ class NotificationTest extends TestCase
     public function test_index_notification()
     {
         $user = User::factory()->create();
+        $book = Book::factory()->create();
+        $readingPlan = ReadingPlan::factory()->create([
+            'user_id' => $user->id,
+            'book_id' => $book->id,
+        ]);
+        $notification = InfoNotification::factory()->create([
+            'notifiable_id' => $user->id,
+            'data' => json_encode([
+                'reading_plan_id' => $readingPlan->id,
+                'body' => $book->title . 'に関するお知らせ',
+                'title' => $book->title,
+            ], JSON_UNESCAPED_UNICODE)
+        ]);
 
         $response = $this->actingAs($user)->get(route('notifications.index'));
 
         $response->assertStatus(200);
         $response->assertSee('通知一覧')
                  ->assertSee('未読')
-                 ->assertSee('吾輩は猫である')
-                 ->assertSee('「吾輩は猫である」に関するお知らせ');
+                 ->assertSee($book->title)
+                 ->assertSee($book->title . 'に関するお知らせ');
     }
 
     public function test_guest_cannot_index_notification()
