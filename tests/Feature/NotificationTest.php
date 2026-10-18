@@ -90,16 +90,32 @@ class NotificationTest extends TestCase
         ]);
     }
 
-    public function test_send_notification()
+    public function test_server_can_send_notification()
     {
-        $user = User::find(1);
-
         Notification::fake();
+
+        $user = User::factory()->create();
+        $book = Book::factory()->create();
+        $readingPlan = ReadingPlan::factory()->create([
+            'user_id' => $user->id,
+            'book_id' => $book->id,
+        ]);
+        //通知をサーバーから受け取る(通知の作成も行われる)のに通知を手動で作成している。
+        /*
+        $notification = InfoNotification::factory()->create([
+            'notifiable_id' => $user->id,
+            'data' => json_encode([
+                'reading_plan_id' => $readingPlan->id,
+                'body' => $book->title . 'に関するお知らせ',
+                'title' => $book->title,
+            ], JSON_UNESCAPED_UNICODE)
+        ]);
+        */
 
         $this->artisan('app:send-notifications');
 
         Notification::assertSentTo(
-            $user, 
+            $user,
             InformationNotification::class
         );
     }
