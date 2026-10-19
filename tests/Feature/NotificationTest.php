@@ -89,7 +89,7 @@ class NotificationTest extends TestCase
             'updated_at' => $readAt,
         ]);
     }
-
+    //テストが通過するときと通過しないときがある
     public function test_server_can_send_notification()
     {
         Notification::fake();
@@ -122,14 +122,15 @@ class NotificationTest extends TestCase
 
     public function test_send_three_days_before_notification()
     {
-        $user = User::find(1);
+        $user = User::factory()->create();
+        $book = Book::factory()->create();
 
         $readingPlan = $user->readingPlans()->create([
             'user_id' => $user->id,
-            'book_id' => 1,
+            'book_id' => $book->id,
             'target_date' => now()->subDays(3),
             'completed_at'=> null,
-            'status' => 0,
+            'status' => 'in_progress',
         ]);
 
         Notification::fake();
