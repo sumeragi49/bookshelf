@@ -277,11 +277,11 @@ class NotificationTest extends TestCase
         $this->travelBack();
     }
 
-    public function test_send_notification_schedule_midnight()
+    public function test_send_notification_schedule_night()
     {
         $schedule = app(Schedule::class);
 
-        $this->travelTo(now()->setTime(0, 0, 0));
+        $this->travelTo(now()->setTime(20, 0, 0));
 
         $events = collect($schedule->events())->filter(function ($event) {
             return $event->isDue(app());
