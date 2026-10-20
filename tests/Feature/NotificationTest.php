@@ -122,40 +122,68 @@ class NotificationTest extends TestCase
 
     public function test_send_three_days_before_notification()
     {
+        Notification::fake();
+        //このtest内でnow()の時間を固定化する
+        $this->travelTo(now()->startOfDay());
+
+        $user = User::factory()->create();
+        $book = Book::factory()->create();
+        /*
+        The expected [App\Notifications\InformationNotification] notification was not sent.
+        Failed asserting that false is true.のエラー
+        */
+        /*PHPUnit::assertTrue(
+        90▕             $this->sent($notifiable, $notification, $callback)->count() > 0,
+        91▕             "The expected [{$notification}] notification was not sent.
+        */
+        /*
+        'user_id'と'book_id'が二重登録になるためエラーが起きる'user_id'は$user->idだが'book_id'は$book->idと新しく作成されたbookのidで競合しエラーが起きる
+        $user->readingPlans()がエラーの元
+        */
+        //$readingPlan = $user->readingPlans()->create([
+        $readingPlan = ReadingPlan::factory()->create([
+            'user_id' => $user->id,
+            'book_id' => $book->id,
+            'target_date' => now()->addDays(3)->toDateString(),
+            'completed_at'=> null,
+            'status' => 'in_progress',
+        ]);
+
+        $this->artisan('app:send-notifications');
+
+        Notification::assertSentTo(
+            $user,
+            InformationNotification::class,
+            function ($notification) use ($user, $book) {
+                
+                $data = $notification->toDatabase($user);
+
+                //dd($data);
+                //str_containsは「$data['body']の中に$book->titleが含まれることを確認する」というニュアンス
+                return isset($data['body']) &&
+                        str_contains($data['body'], $book->title) &&
+                        str_contains($data['body'], 'の目標読了日まであと3日です');
+            }
+        );
+
+        //時間の固定化をなくす
+        $this->travelBack();
+    }
+
+    public function test_send_on_days_notification()
+    {
+        Notification::fake();
+
         $user = User::factory()->create();
         $book = Book::factory()->create();
 
         $readingPlan = $user->readingPlans()->create([
             'user_id' => $user->id,
             'book_id' => $book->id,
-            'target_date' => now()->subDays(3),
+            'target_date' => now(),
             'completed_at'=> null,
             'status' => 'in_progress',
         ]);
-
-        Notification::fake();
-
-        $this->artisan('app:send-notifications');
-
-        Notification::assertSentTo(
-            $user,
-            InformationNotification::class
-        );
-    }
-
-    public function test_send_on_days_notification()
-    {
-        $user = User::find(1);
-
-        $readingPlan = $user->readingPlans()->create([
-            'user_id' => $user->id,
-            'book_id' => 1,
-            'target_date' => now(),
-            'completed_at'=> null,
-            'status' => 0,
-        ]);
-
-        Notification::fake();
 
         $this->artisan('app:send-notifications');
 
