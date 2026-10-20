@@ -209,24 +209,39 @@ class NotificationTest extends TestCase
 
     public function test_send_three_days_after_notification()
     {
-        $user = User::find(1);
+        Notification::fake();
+
+        $this->travelTo(now()->startOfDay());
+
+        $user = User::factory()->create();
+        $book = Book::factory()->create();
 
         $readingPlan = $user->readingPlans()->create([
             'user_id' => $user->id,
-            'book_id' => 1,
-            'target_date' => now()->addDays(3),
+            'book_id' => $book->id,
+            'target_date' => now()->subDays(3),
             'completed_at'=> null,
-            'status' => 0,
+            'status' => 'in_progress',
         ]);
-
-        Notification::fake();
 
         $this->artisan('app:send-notifications');
 
         Notification::assertSentTo(
             $user,
-            InformationNotification::class
+            InformationNotification::class,
+            function ($notification) use ($user, $book) {
+                
+                $data = $notification->toDatabase($user);
+
+                //dd($data);
+                //str_containsは「$data['body']の中に$book->titleが含まれることを確認する」というニュアンス
+                return isset($data['body']) &&
+                        str_contains($data['body'], $book->title) &&
+                        str_contains($data['body'], 'の目標読了日から3日過ぎています');
+            }
         );
+
+        $this->travelBack();
     }
 
     public function test_prune_notification()
