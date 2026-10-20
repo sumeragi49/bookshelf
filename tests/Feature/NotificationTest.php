@@ -244,16 +244,28 @@ class NotificationTest extends TestCase
         $this->travelBack();
     }
 
-    public function test_prune_notification()
+    public function test_user_can_prune_expired_notification()
     {
-        $user = User::find(1);
+        $this->travelTo(now()->startOfDay());
 
-        $notification = $user->notifications()->create([
-            'id' => Str::uuid(),
-            'type' => 'App\Notifications\InformationNotification',
-            'data' => [],
-            'read_at' => null,
-            'created_at' => now()->subDay(21),
+        $user = User::factory()->create();
+        $book = Book::factory()->create();
+        $readingPlan = ReadingPlan::factory()->create([
+            'user_id' => $user->id,
+            'book_id' => $book->id,
+        ]);
+        $notification = InfoNotification::factory()->create([
+            'notifiable_id' => $user->id,
+            'data' => json_encode([
+                'reading_plan_id' => $readingPlan->id,
+                'body' => $book->title . 'に関するお知らせ',
+                'title' => $book->title,
+            ], JSON_UNESCAPED_UNICODE),
+            'created_at' => now()->subDays(21)
+        ]);
+
+        $this->assertDatabaseHas('notifications', [
+            'id' => $notification->id
         ]);
 
         $this->artisan('app:prune-notifications');
@@ -261,6 +273,8 @@ class NotificationTest extends TestCase
         $this->assertDatabaseMissing('notifications', [
             'id' => $notification->id,
         ]);
+
+        $this->travelBack();
     }
 
     public function test_send_notification_schedule_midnight()
