@@ -277,7 +277,7 @@ class NotificationTest extends TestCase
         $this->travelBack();
     }
 
-    public function test_send_notification_schedule_night()
+    public function test_send_notification_schedule_eight_pm()
     {
         $schedule = app(Schedule::class);
 
@@ -292,11 +292,11 @@ class NotificationTest extends TestCase
         );
     }
 
-    public function test_prune_notification_schedule_one_am()
+    public function test_prune_notification_schedule_eight_pm()
     {
         $schedule = app(Schedule::class);
 
-        $this->travelTo(now()->setTime(1, 0, 0));
+        $this->travelTo(now()->setTime(20, 0, 0));
 
         $events = collect($schedule->events())->filter(function ($event) {
             return $event->isDue(app());
