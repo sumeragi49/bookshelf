@@ -367,14 +367,15 @@ class NotificationTest extends TestCase
 
     public function test_send_notification_three_after_days_store()
     {
-        $user = user::find(1);
+        $user = user::factory()->create();
+        $book = Book::factory()->create();
 
         $record = $user->readingPlans()->create([
             'user_id' => $user->id,
-            'book_id' => 1,
+            'book_id' => $book->id,
             'target_date' => now()->addDays(3),
             'completed_at'=> null,
-            'status' => 0,
+            'status' => 'in_progress',
         ]);
 
         $type = 'three_days_after';
@@ -383,8 +384,8 @@ class NotificationTest extends TestCase
 
         $notification = [
             'reading_plan_id' => $record->id,
-            'body' => "「吾輩は猫である」の目標読了日から3日過ぎています",
-            'title' => '吾輩は猫である',
+            'body' => '「' . $book->title . '」の目標読了日から3日過ぎています',
+            'title' => $book->title,
         ];
 
         $this->assertDatabaseHas('notifications', [
