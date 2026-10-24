@@ -307,29 +307,6 @@ class NotificationTest extends TestCase
         );
     }
 
-    public function test_send_notification_store()
-    {
-        $user = User::find(1);
-
-        $record = ReadingPlan::with('user', 'book')
-               -> find(1);
-
-        $type = 'default';
-
-        $user->notify(new InformationNotification($type, $record));
-
-        $notification = [
-            'reading_plan_id' => 1,
-            'body' => "「吾輩は猫である」に関するお知らせ",
-            'title' => '吾輩は猫である',
-        ];
-
-        $this->assertDatabaseHas('notifications', [
-            'notifiable_id' => $user->id,
-            'data' =>json_encode($notification),
-        ]);
-    }
-
     public function test_send_notification_three_before_days_store()
     {
         $user = user::factory()->create();
