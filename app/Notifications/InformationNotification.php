@@ -61,6 +61,7 @@ class InformationNotification extends Notification
             'three_days_before' => "「{$this->record->book->title}」の目標読了日まであと3日です",
             'on_due_date' => "「{$this->record->book->title}」の目標読了日です",
             'three_days_after' => "「{$this->record->book->title}」の目標読了日から3日過ぎています",
+            'expired' => "「{$this->record->book->title}」の読書計画が期限切れになりました",
             default => "「{$this->record->book->title}」に関するお知らせ",
         };
         //dataカラムに全て入る。

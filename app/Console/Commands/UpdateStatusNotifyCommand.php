@@ -30,19 +30,21 @@ class UpdateStatusNotifyCommand extends Command
      */
     public function handle()
     {
-        $days = Carbon::today();
-        $expirationDate = $days->copy()->addDay();
-
         $updateCount = 0 ;
         
-        ReadingPlan:: where('status', '!=', 'completed')
-                   -> where('target_date', '<', $expirationDate)
-                   -> where('status', '!=', ReadingPlanStatus::Expired)
+        ReadingPlan::with(['user', 'book'])
+                   -> where('status', '!=', 'completed')
+                   -> where('target_date', '<', Carbon::today())
+                   -> where('status', '!=', 'expired')
                    -> chunk(100, function ($plans) use (&$updateCount) {
                         foreach ($plans as $plan) {
                             $plan->update([
                                 'status' => 'expired',
                             ]);
+
+                            $plan->user->notify(new InformationNotification(
+                                'expired', $plan
+                            ));
                         $updateCount++;
                         }
                    });

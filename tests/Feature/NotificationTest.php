@@ -244,6 +244,41 @@ class NotificationTest extends TestCase
         $this->travelBack();
     }
 
+    public function test_send_update_status_notification()
+    {
+        Notification::fake();
+
+        $this->travelTo(now()->startOfDay());
+
+        $user = User::factory()->create();
+        $book = Book::factory()->create();
+
+        $readingPlan = $user->readingPlans()->create([
+            'user_id' => $user->id,
+            'book_id' => $book->id,
+            'target_date' => now()->subDays(1),
+            'completed_at'=> null,
+            'status' => 'in_progress',
+        ]);
+
+        $this->artisan('app:update-notifications')->assertSuccessful();
+
+        Notification::assertSentTo(
+            $user,
+            InformationNotification::class,
+            function ($notification) use ($user, $book) {
+                
+                $data = $notification->toDatabase($user);
+
+                //dd($data);
+                //str_containsは「$data['body']の中に$book->titleが含まれることを確認する」というニュアンス
+                return $data['body'] === "「{$book->title}」の読書計画が期限切れになりました";
+            }
+        );
+
+        $this->travelBack();
+    }
+
     public function test_user_can_prune_expired_notification()
     {
         $this->travelTo(now()->startOfDay());
