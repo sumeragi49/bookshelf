@@ -20,13 +20,9 @@ class ReportController extends Controller
                     -> withAvg('reviews', 'rating')
                     -> findOrFail(Auth::id());
         //ログインユーザーの「読了」した書籍のデータを取得する
-        $bookStats = DB::table('reading_plan')
-                  -> where('user_id', $user->id)
-                  -> where('status', '2')
-                  -> selectRaw('
-                        COUNT(*) as books_read
-                  ')
-                  -> first();
+        $bookStats = ReadingPlan::where('user_id', $user->id)
+                  -> where('status', 'completed')
+                  -> count();
         
         $totalCount = $reviewStats->total_reviews ?: 1;
 
@@ -124,7 +120,7 @@ class ReportController extends Controller
         $stats = [
             'summary' => [
                 'total_reviews' => (int) $reviewStats->reviews_count,
-                'books_read' => (int) $bookStats->books_read,
+                'books_read' => (int) $bookStats,
                 'average_rating' => (float) round($reviewStats->reviews_avg_rating, 2),
             ],
             'rating_distribution' => $ratingDistributionCollection,
