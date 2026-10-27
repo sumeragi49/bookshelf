@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\View;
+use App\Models\User;
 use App\Models\ReadingPlan;
 
 class ReportController extends Controller
@@ -14,13 +15,10 @@ class ReportController extends Controller
     {
         $user = Auth::user();
         //ログインユーザーのreviewの総数と平均値を算出する($reviewsStats)
-        $reviewStats = DB::table('reviews')
-                    -> select([
-                            DB::raw('COUNT(*) as total_reviews'),
-                            DB::raw('AVG(rating) as average_rating')
-                   ])
-                   -> where('user_id', $user->id)
-                   -> first();
+        //平均値はreviews_avg_rating,総数はcount_reviewとして呼び出す
+        $reviewStats = User::withCount('reviews')
+                    -> withAvg('reviews', 'rating')
+                    -> findOrFail(Auth::id());
         //ログインユーザーの「読了」した書籍のデータを取得する
         $bookStats = DB::table('reading_plan')
                   -> where('user_id', $user->id)
@@ -125,9 +123,9 @@ class ReportController extends Controller
 
         $stats = [
             'summary' => [
-                'total_reviews' => (int) $reviewStats->total_reviews,
+                'total_reviews' => (int) $reviewStats->reviews_count,
                 'books_read' => (int) $bookStats->books_read,
-                'average_rating' => (float) round($reviewStats->average_rating, 2),
+                'average_rating' => (float) round($reviewStats->reviews_avg_rating, 2),
             ],
             'rating_distribution' => $ratingDistributionCollection,
             'top_rated_books' => $topRatedBooks,
