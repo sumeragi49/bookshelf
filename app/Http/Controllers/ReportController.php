@@ -26,39 +26,19 @@ class ReportController extends Controller
         
         $totalCount = $reviewStats->total_reviews ?: 1;
 
-        $distributionData = DB::table('reviews')
-                         -> where('user_id', $user->id)
-                         -> select('rating', DB::raw('COUNT(*) as count'))
-                         -> groupBy('rating')
-                         -> orderBy('rating', 'desc')
-                         -> get()
-                         -> keyBy('rating');
-
+        //userのreviewの1～5の評価の分布を
+        //データの中身 [5 => 3, 4 => 1, 3 => 1] // 評価 => 件数
+        $distributionData = $user->reviews()
+                         -> pluck('rating')
+                         -> countBy()
+                         -> sortKeysDesc();
+        //上で数えた結果から ★1〜★5 を順番に取り出し、ない評価は 0 で埋めて、5つの要素を持つ配列に並べ直しています。
+        //[0, 0, 1, 1, 3]  // ★1, ★2, ★3, ★4, ★5 の件数
         $ratingDistribution = [];
 
         for ($rating = 1; $rating <= 5; $rating++) {
-            $ratingDistribution[] = isset($distributionData[$rating]) ? (int) $distributionData[$rating]->count : 0;
+            $ratingDistribution[] = $distributionData[$rating] ?? 0;
         }
-        //countの最大値をあらかじめ計算する
-        //$maxCountValue = max($ratingDistribution) ? : 1;
-        //IteratorAggregateを実装してループを可能にする。
-        //$ratingDistributionObj = new class($ratingDistribution, $maxCountValue) implements \IteratorAggregate {
-            //private $array;
-            //private $maxVal;
-
-            //public function _construct($array, $maxVal) {
-                //$this->array = $array;
-                //$this->maxVal = $maxVal;
-            //}
-
-            //public function max() {
-                //return $this->maxVal;
-            //}
-            //Bladeの@foreachでループできるようにする。
-            //public function getIterator(): \Traversable {
-                //return new \ArrayIterator($this->array);
-            //}
-        //};
 
         $ratingDistributionCollection = collect($ratingDistribution);
 
