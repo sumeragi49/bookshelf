@@ -7,6 +7,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\View;
 use App\Models\User;
+use App\Models\Book;
 use App\Models\ReadingPlan;
 
 class ReportController extends Controller
@@ -42,6 +43,7 @@ class ReportController extends Controller
 
         $ratingDistributionCollection = collect($ratingDistribution);
 
+        /*
         $topRatedBooks = DB::table('reviews')
                       -> join('books', 'reviews.book_id', '=', 'books.id')
                       -> select(
@@ -69,6 +71,36 @@ class ReportController extends Controller
                         ];
                       })
                       ->toArray();
+        */
+        /*
+        「このユーザーが評価 4 以上のレビューを書いた本」だけに絞り込む条件
+        実際の whereHas（EXISTS 型）
+
+        視点は books 側にあり、本を1冊ずつ見て「この本に、条件を満たすレビューはある？」と確認する形です。
+        */
+        $topRatedBooks = Book::query()
+                      -> whereHas('reviews', function ($query) use ($user) {
+                        $query->where('user_id', $user->id)
+                              ->where('rating', '>=', 4);
+                      })
+                      -> withAvg('reviews', 'rating')
+                      -> withCount('reviews')
+                      -> orderBy('reviews_avg_rating', 'desc')
+                      -> orderBy('reviews_count', 'desc')
+                      -> limit(5)
+                      -> get()
+                      -> map(function ($book) {
+                        return [
+                            'id'           => $book->id,
+                            'title'        => $book->title,
+                            'author'       => $book->author,
+                            'avg_rating'   => (float) round($book->reviews_avg_rating, 2),
+                            'rating'       => (float) round($book->reviews_average_rating, 2),
+                            'review_count' => (int) $book->review_count,
+                        ];
+                      })
+                      ->toArray();
+
 
         $topRatedGenres = DB::table('genres')
                        -> join('book_genre', 'genres.id', '=', 'book_genre.genre_id')
