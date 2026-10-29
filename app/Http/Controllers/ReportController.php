@@ -79,23 +79,33 @@ class ReportController extends Controller
         視点は books 側にあり、本を1冊ずつ見て「この本に、条件を満たすレビューはある？」と確認する形です。
         */
         $topRatedBooks = Book::query()
+                      //whereHasが関連データの条件で親を絞り込む(reviewの条件を満たすbookを絞り込む)
                       -> whereHas('reviews', function ($query) use ($user) {
                         $query->where('user_id', $user->id)
                               ->where('rating', '>=', 4);
                       })
+                      //reviewsの平均値を「reviews_avg_rating」で取り出せるようになる
                       -> withAvg('reviews', 'rating')
+                      //reviewの総数を「reviews_count」で取り出せるようになる
                       -> withCount('reviews')
+                      //リレーション先のカラムの最大値を取得する(ログインユーザーのuser_idを持つ,reviewの評価をreviews_ratingとして)(複数ある場合最大値で)
+                      -> withMax(['reviews as reviews_rating' => function ($query) use($user) {
+                        $query->where('user_id', $user->id);
+                      }], 'rating')
                       -> orderBy('reviews_avg_rating', 'desc')
                       -> orderBy('reviews_count', 'desc')
                       -> limit(5)
                       -> get()
+                      //map に渡される1件1件の Bookを$bookとする
                       -> map(function ($book) {
                         return [
                             'id'           => $book->id,
                             'title'        => $book->title,
                             'author'       => $book->author,
+                            /*
                             'avg_rating'   => (float) round($book->reviews_avg_rating, 2),
-                            'rating'       => (float) round($book->reviews_average_rating, 2),
+                            */
+                            'rating'       => (float) $book->reviews_rating,
                             'review_count' => (int) $book->review_count,
                         ];
                       })
