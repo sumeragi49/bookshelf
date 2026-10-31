@@ -8,6 +8,8 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\View;
 use App\Models\User;
 use App\Models\Book;
+use App\Models\Genre;
+use App\Models\Review;
 use App\Models\ReadingPlan;
 
 class ReportController extends Controller
@@ -111,7 +113,7 @@ class ReportController extends Controller
                       })
                       ->toArray();
 
-
+        /*
         $topRatedGenres = DB::table('genres')
                        -> join('book_genre', 'genres.id', '=', 'book_genre.genre_id')
                        -> join('books', 'book_genre.book_id', '=', 'books.id')
@@ -138,6 +140,37 @@ class ReportController extends Controller
                            ];
                        })
                        ->toArray();
+        */
+        
+        $topRatedGenres = Review::with('book.genres')
+                       -> where('user_id', $user->id)
+                       -> get()
+                       -> flatMap(fn ($review) => ($review->book?->genres ?? collect())
+                           -> map(fn ($genre) => [
+                            'genre' => $genre,
+                            'rating' => $review->rating,
+                           ])
+                       )
+                       -> groupBy(fn ($item) => $item['genre']->id)
+                       -> map(function ($items) {
+                           $genre = $items->first()['genre'];
+
+                           return [
+                               'id' => $genre->id,
+                               'name' => $genre->name,
+                               'average_rating' => round($items->avg('rating'), 2),
+                               'count' => $items->count(),
+                           ];
+                       })
+                       ->sortBy([
+                           ['average_rating', 'desc'],
+                           ['count', 'desc'],
+                       ])
+                       ->take(5)
+                       ->values()
+                       ->toArray();
+        
+
 
         $stats = [
             'summary' => [
