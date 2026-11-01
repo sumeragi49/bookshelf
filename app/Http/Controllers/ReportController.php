@@ -161,23 +161,50 @@ class ReportController extends Controller
                             'rating' => $review->rating,
                            ])
                        )
+                       //groupByが同じキーを持つもの同士でまとめる
+                       /*
+                       [
+                            1 => [
+                                ['genre_id' => 1, 'name' => 'ミステリー', 'rating' => 5],
+                                ['genre_id' => 1, 'name' => 'ミステリー', 'rating' => 3],
+                            ],
+                            2 => [
+                                ['genre_id' => 2, 'name' => 'ホラー', 'rating' => 5],
+                            ],
+                            3 => [
+                                ['genre_id' => 3, 'name' => 'SF', 'rating' => 4],
+                            ],
+                        ]
+                       */
+                       //flatMapで作成した行の1行ずつを$itemとして受け取り,genreのidごとにまとめる
                        -> groupBy(fn ($item) => $item['genre']->id)
+                       //まとめたグループを1つずつ$itemsとして受け取る($items = 同じジャンルの行の集まり)
                        -> map(function ($items) {
+                           //$itemsの一つを取り出したものを$genreとする
                            $genre = $items->first()['genre'];
 
                            return [
+                               //'id'は$genreのid
                                'id' => $genre->id,
+                               //'name'は$genreのname
                                'name' => $genre->name,
+                               //'average_rating'は同じジャンルの評価の平均値(小数第一位まで)
                                'average_rating' => round($items->avg('rating'), 2),
+                               //'count'は$itemsの総数
                                'count' => $items->count(),
                            ];
                        })
+                       //以下の条件の順番で並べる
                        ->sortBy([
+                           //'average_rating','count'ともに降順(多い順)
                            ['average_rating', 'desc'],
                            ['count', 'desc'],
                        ])
+                       //データ5つを取得
                        ->take(5)
+                       //降順で並び順が変わったため、改めて連番にして順番を付ける(上記の例だとgenre_idが2,1,3の順になるためそれを改めて1,2,3にする)
                        ->values()
+                       //配列でcollection()でgenre_idになったキーを連番に戻す
                        ->toArray();
         
 
