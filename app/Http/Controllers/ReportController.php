@@ -141,11 +141,21 @@ class ReportController extends Controller
                        })
                        ->toArray();
         */
-        
+        //reviewsとそれに紐づくbook,genreのuser_idがログインユーザーのデータを全て取得する
         $topRatedGenres = Review::with('book.genres')
                        -> where('user_id', $user->id)
                        -> get()
+                       //reviewを一件ずつ受け取り,本のジャンルごとに1列に並べる(本がない場合は「」のコレクション)
+                       //「$review->book?->genre」と「?? collect()」の組み合わせ
                        -> flatMap(fn ($review) => ($review->book?->genres ?? collect())
+                           //ジャンルを1つずつ受け取り($genreとする),ジャンルと評価の組を作る
+                           /*
+                           外側の$reviewと内側の$genreと作成物の例
+                           review1(本A,評価5)  ミステリー  [ミステリー,5]
+                           review1(本A,評価5)  ホラー      [ホラー,5]
+                           review2(本B,評価3)  ミステリー  [ミステリー,3]
+                           review3(本C,評価4)  SF         [SF,4]
+                           */
                            -> map(fn ($genre) => [
                             'genre' => $genre,
                             'rating' => $review->rating,
