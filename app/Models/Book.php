@@ -39,16 +39,31 @@ class Book extends Model
         return $this->hasMany(Review::class);
     }
 
+    //第1引数の $query は Laravel が自動で渡すクエリビルダで、呼び出し側は第2引数の $keyword だけを渡します。
     public function scopeKeywordSearch($query, $keyword)
     {
+        //キーワードが空なら何もしない
+        /*
         if (empty($keyword)) {
             return $query;
         }
-
+        //
         return $query->where(function (Builder $subQuery) use ($keyword) {
             $subQuery->where('books.title', 'like', '%' . $keyword . '%')
                      ->orWhere('books.author', 'like', '%' . $keyword . '%');
         });
+        */
+        //$keywordが空でない場合
+        if (!empty($keyword)) {
+            //今回はorのみの条件だが,後々、「いいねをしている書籍のみ」などの確定された条件が付く場合,andとorの条件が混在する可能性があるため,クロージャー形式で囲む(条件分岐がorのみであれば$queryからいきなりwhereで条件付けを始めてもよい)
+            //$queryは以下のEloquentの条件で行うこととする
+            $query->where(function (Builder $subQuery) use ($keyword) {
+                //books tableのtitleカラムのデータに部分一致するもの
+                $subQuery->where('books.title', 'like', '%' . $keyword . '%')
+                         //books tableのauthorカラムのデータに部分一致するもの
+                         ->orWhere('books.author', 'like', '%' . $keyword . '%');
+            });
+        }
     }
 
     public function scopeGenreFilter(Builder $query, ?string $genre): Builder
