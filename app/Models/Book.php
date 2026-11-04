@@ -65,16 +65,21 @@ class Book extends Model
             });
         }
     }
-
+    //ジャンルによるフィルターのscope設定
     public function scopeGenreFilter(Builder $query, ?string $genre): Builder
     {
+        //$genreが空であればそのままにする
         if (empty($genre)) {
             return $query;
         }
-
-        return $query->whereHas('genres', function (Builder $subQuery) use ($genre) {
-            $subQuery->where('genre_id', $genre);
-        });
+        //$genreが空でない場合
+        if (!empty($genre)) {
+            //$queryはgenres tableからデータを取得し、取得条件は以下($subQuery)とする
+            return $query->whereHas('genres', function (Builder $subQuery) use ($genre) {
+                //$subQueryは'genre_id'で取得したものを$genreとして格納する。
+                $subQuery->where('genre_id', $genre);
+            });
+        }
     }
 
     public function scopeSortOrder(Builder $query, ?string $sortKey): Builder
