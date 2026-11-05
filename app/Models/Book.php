@@ -65,6 +65,7 @@ class Book extends Model
             });
         }
     }
+    /*
     //ジャンルによるフィルターのscope設定
     public function scopeGenreFilter(Builder $query, ?string $genre): Builder
     {
@@ -81,6 +82,35 @@ class Book extends Model
             });
         }
     }
+    */
+
+    //この書き方の場合は「戻り値の型をBuilderと宣言しているためreturnが必要」
+    /*
+    : Builder と書くと、PHP はそのメソッドが必ず Builder を返すかをチェックしている。今のコードは if の中で $query を変更しているが、最後に何も返していない。そのため戻り値が null になり、型エラーになる。$genre が空で if を通らない場合も同じ
+    */
+    /*
+    public function scopeGenreFilter(Builder $query, ?string $genre): Builder
+    {
+        if (!empty($genre)) {
+            $query->whereHas('genres', function (Builder $subQuery) use ($genre) {
+                $subQuery->where('genre_id', $genre);
+            });
+        }
+
+        return $query;
+    }
+    */
+
+    //今回はジャンルによる単純な一つの場合分けのためwhenの方が好ましい
+    //条件を足す可能性があるのならifの方が好ましい。
+    
+    public function scopeGenreFilter(Builder $query, ?string $genre): Builder
+    {
+        return $query->when($genre, function (Builder $q, $genre) {
+            $q->whereHas('genres', fn (Builder $sub) => $sub->where('genre_id', $genre));
+        });
+    }
+    
 
     public function scopeSortOrder(Builder $query, ?string $sortKey): Builder
     {
