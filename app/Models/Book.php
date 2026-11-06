@@ -111,14 +111,20 @@ class Book extends Model
         });
     }
     
-
+    //並ぶ順番を指定する
     public function scopeSortOrder(Builder $query, ?string $sortKey): Builder
     {
+        //match構文は値を見て、条件に合う結果を1つ返す構文
         return match ((string)$sortKey) {
+            //'oldest'はcerated_atが古い順
             'oldest' => $query->orderBy('created_at','asc'),
+            //'title'は昇順(DBの照合順)で決まる(記号・数字->アルファベット->ひらがな・カタカナ->漢字の順)
             'title' => $query->orderBy('title', 'asc'),
+            //'rating'は降順(評価の高い順)に並ぶorderByRaw('rating IS NULL ASC')は評価がNULLの書籍を一番後ろにするため,ないと一番上にくる
             'rating' => $query->orderByRaw('rating IS NULL ASC')->orderBy('rating', 'desc'),
+            //'newest'は作成順
             'newest' => $query->orderBy('created_at', 'desc'),
+            //defaultも作成順(sort機能の使用がない時(一番初めに画面を開いた時など))
             default => $query->orderBy('created_at', 'desc'),
         };
     }
